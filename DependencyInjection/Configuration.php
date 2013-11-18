@@ -33,7 +33,7 @@ class Configuration implements ConfigurationInterface
                     ->scalarNode('host')
                         ->defaultValue('localhost')
                     ->end()
-                    ->scalarNode('port')
+                    ->integerNode('port')
                         ->defaultValue(5672)
                     ->end()
                     ->scalarNode('user')

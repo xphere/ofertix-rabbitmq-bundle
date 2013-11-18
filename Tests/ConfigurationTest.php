@@ -43,6 +43,19 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expected, $result['connections']);
     }
 
+    public function testInvalidPort()
+    {
+        $this->setExpectedException('\Symfony\Component\Config\Definition\Exception\InvalidTypeException');
+
+        $this->processConfig(array(
+            'connections' => array(
+                'default' => array(
+                    'port' => '5672',
+                ),
+            ),
+        ));
+    }
+
     protected function processConfig(array $config)
     {
         $configuration = $this->getConfiguration();
