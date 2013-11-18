@@ -4,17 +4,11 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
-    <!--
     <parameters>
-        <parameter key="ofertix_rabbit_mq.example.class">Ofertix\RabbitMqBundle\Example</parameter>
+        <parameter key="ofertix_rabbitmq.class">PhpAmqpLib\Connection\AMQPConnection</parameter>
     </parameters>
 
     <services>
-        <service id="ofertix_rabbit_mq.example" class="%ofertix_rabbit_mq.example.class%">
-            <argument type="service" id="service_id" />
-            <argument>plain_value</argument>
-            <argument>%parameter_name%</argument>
-        </service>
+        <service id="ofertix_rabbitmq" class="%ofertix_rabbitmq.class%" />
     </services>
-    -->
 </container>
