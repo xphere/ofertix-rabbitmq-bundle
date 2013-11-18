@@ -7,11 +7,8 @@ use Symfony\Component\Config\Definition\Processor;
 
 class ConfigurationTest extends \PHPUnit_Framework_TestCase
 {
-    public function testGetDefaultValues()
+    public function testGetDefaultConnection()
     {
-        $result = $this->processConfig(array());
-
-        $this->assertTrue(isset($result['connections']));
         $expected = array(
             'default' => array(
                 'host' => 'localhost',
@@ -21,6 +18,9 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
                 'vhost' => '/',
             ),
         );
+        $result = $this->processConfig(array());
+
+        $this->assertArrayHasKey('connections', $result);
         $this->assertEquals($expected, $result['connections']);
     }
 
