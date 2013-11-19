@@ -15,6 +15,10 @@ class OfertixRabbitMqExtension extends Extension
         $configuration = new Configuration($this->getAlias());
         $config = $this->processConfiguration($configuration, $configs);
 
+        if (false === $config['enabled']) {
+            return;
+        }
+
         $loader = new Loader\XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.xml');
 

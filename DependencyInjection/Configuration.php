@@ -20,6 +20,7 @@ class Configuration implements ConfigurationInterface
         $rootNode = $treeBuilder->root($this->alias);
 
         $rootNode
+            ->canBeDisabled()
             ->children()
                 ->scalarNode('default_connection')
                     ->defaultNull()
