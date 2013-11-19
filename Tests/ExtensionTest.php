@@ -71,11 +71,11 @@ class ExtensionTest extends \PHPUnit_Framework_TestCase
             'enabled' => false,
         );
 
-        $this->setExpectedException('\Symfony\Component\DependencyInjection\Exception\InvalidArgumentException');
+        $this->setExpectedException('Symfony\Component\DependencyInjection\Exception\InvalidArgumentException');
 
         $container = $this->processConfig($configuration);
         $container->findDefinition('ofertix_rabbitmq');
-   }
+    }
 
     protected function processConfig(array $config)
     {
