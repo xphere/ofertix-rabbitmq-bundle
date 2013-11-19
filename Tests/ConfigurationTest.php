@@ -56,6 +56,32 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
         ));
     }
 
+    public function testMultipleConnections()
+    {
+        $expected = array(
+            'default_connection' => array(
+                'host' => 'example.org',
+                'port' => 6725,
+                'user' => 'anonymous',
+                'password' => 'anonymous',
+                'vhost' => '/rabbit-mq',
+            ),
+            'alternative_connection' => array(
+                'host' => 'example.net',
+                'port' => 7256,
+                'user' => 'myuser',
+                'password' => 'mypassword',
+                'vhost' => '/dev/shm/amqp',
+            ),
+        );
+        $result = $this->processConfig(array(
+            'connections' => $expected,
+        ));
+
+        $this->assertArrayHasKey('connections', $result);
+        $this->assertEquals($expected, $result['connections']);
+    }
+
     protected function processConfig(array $config)
     {
         $configuration = $this->getConfiguration();
