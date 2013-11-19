@@ -2,6 +2,7 @@
 
 namespace Ofertix\RabbitMqBundle\DependencyInjection;
 
+use Symfony\Component\DependencyInjection\Alias;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\DefinitionDecorator;
@@ -23,8 +24,14 @@ class OfertixRabbitMqExtension extends Extension
                 'The default connection should be named "%s" but it does not exist'
             );
         }
-        $connection = new DefinitionDecorator('ofertix_rabbitmq.abstract_connection');
-        $container->setDefinition('ofertix_rabbitmq', $connection);
+
+        foreach ($config['connections'] as $name => $data) {
+            $connection = new DefinitionDecorator('ofertix_rabbitmq.abstract_connection');
+            $connection->setArguments(array($data['host'], $data['port'], $data['user'], $data['password'], $data['vhost']));
+            $container->setDefinition("ofertix_rabbitmq.connection.{$name}", $connection);
+        }
+
+        $container->setAlias('ofertix_rabbitmq', "ofertix_rabbitmq.connection.{$config['default_connection']}");
     }
 
     public function getAlias()

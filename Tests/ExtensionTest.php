@@ -13,9 +13,9 @@ class ExtensionTest extends \PHPUnit_Framework_TestCase
         $container = $this->processConfig($extension, array());
         $container->compile();
 
-        $name = $extension->getAlias();
-        $this->assertTrue($container->hasDefinition($name));
-        $this->assertEquals('PhpAmqpLib\Connection\AMQPConnection', $container->getDefinition($name)->getClass());
+        $definition = $container->findDefinition('ofertix_rabbitmq');
+        $this->assertEquals('PhpAmqpLib\Connection\AMQPConnection', $definition->getClass());
+        $this->assertContains('localhost', $definition->getArguments());
     }
 
     public function testManuallySetDefaultConnection()
@@ -37,9 +37,9 @@ class ExtensionTest extends \PHPUnit_Framework_TestCase
         $container = $this->processConfig($extension, array($configuration, ));
         $container->compile();
 
-        $name = $extension->getAlias();
-        $this->assertTrue($container->hasDefinition($name));
-        $this->assertEquals('PhpAmqpLib\Connection\AMQPConnection', $container->getDefinition($name)->getClass());
+        $definition = $container->findDefinition('ofertix_rabbitmq');
+        $this->assertEquals('PhpAmqpLib\Connection\AMQPConnection', $definition->getClass());
+        $this->assertContains('example.org', $definition->getArguments());
     }
 
     public function testDefaultConnectionNameMustBeDefined()
