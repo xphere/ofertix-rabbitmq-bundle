@@ -92,7 +92,7 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
 
     protected function getConfiguration()
     {
-        return new Bundle\DependencyInjection\Configuration();
+        return new Bundle\DependencyInjection\Configuration('ofertix_rabbitmq_configuration');
     }
 
     protected function getProcessor()

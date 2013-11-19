@@ -7,10 +7,17 @@ use Symfony\Component\Config\Definition\ConfigurationInterface;
 
 class Configuration implements ConfigurationInterface
 {
+    protected $alias;
+
+    public function __construct($alias)
+    {
+        $this->alias = $alias;
+    }
+
     public function getConfigTreeBuilder()
     {
         $treeBuilder = new TreeBuilder();
-        $rootNode = $treeBuilder->root('ofertix_rabbit_mq');
+        $rootNode = $treeBuilder->root($this->alias);
 
         $rootNode
             ->fixXmlConfig('connection')

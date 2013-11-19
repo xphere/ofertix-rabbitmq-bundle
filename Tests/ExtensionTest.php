@@ -9,17 +9,17 @@ class ExtensionTest extends \PHPUnit_Framework_TestCase
 {
     public function testDefaults()
     {
-        $container = $this->processConfig(array());
+        $extension = $this->getExtension();
+        $container = $this->processConfig($extension, array());
         $container->compile();
 
-        $name = 'ofertix_rabbitmq';
+        $name = $extension->getAlias();
         $this->assertTrue($container->hasDefinition($name));
         $this->assertEquals('PhpAmqpLib\Connection\AMQPConnection', $container->getDefinition($name)->getClass());
     }
 
-    protected function processConfig(array $config)
+    protected function processConfig($extension, array $config)
     {
-        $extension = $this->getExtension();
         $container = $this->getContainer();
         $extension->load($config, $container);
 
