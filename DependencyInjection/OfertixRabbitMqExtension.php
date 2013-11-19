@@ -22,10 +22,7 @@ class OfertixRabbitMqExtension extends Extension
         $loader = new Loader\XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.xml');
 
-        if (null === $config['default_connection']) {
-            list($config['default_connection'], ) = each($config['connections']);
-
-        } elseif (!isset($config['connections'][$config['default_connection']])) {
+        if (!isset($config['connections'][$config['default_connection']])) {
             throw new \UnexpectedValueException(sprintf(
                 'The default connection should be named "%s" but it does not exist',
                 $config['default_connection']

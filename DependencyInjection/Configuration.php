@@ -28,6 +28,16 @@ class Configuration implements ConfigurationInterface
             ->end()
             ->fixXmlConfig('connection')
             ->append($this->getConnectionsNode())
+            ->validate()
+                ->ifTrue(function($value) {
+                    return null === $value['default_connection'];
+                })
+                ->then(function($value) {
+                    list($value['default_connection'], ) = each($value['connections']);
+
+                    return $value;
+                })
+            ->end()
         ;
 
         return $treeBuilder;
