@@ -20,6 +20,9 @@ class Configuration implements ConfigurationInterface
         $rootNode = $treeBuilder->root($this->alias);
 
         $rootNode
+            ->children()
+                ->scalarNode('default_connection')->end()
+            ->end()
             ->fixXmlConfig('connection')
             ->append($this->getConnectionsNode())
         ;
