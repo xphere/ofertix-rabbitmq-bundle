@@ -22,13 +22,6 @@ class OfertixRabbitMqExtension extends Extension
         $loader = new Loader\XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.xml');
 
-        if (!isset($config['connections'][$config['default_connection']])) {
-            throw new \UnexpectedValueException(sprintf(
-                'The default connection should be named "%s" but it does not exist',
-                $config['default_connection']
-            ));
-        }
-
         foreach ($config['connections'] as $name => $data) {
             $connection = new DefinitionDecorator('ofertix_rabbitmq.abstract_connection');
             $connection->setArguments(array($data['host'], $data['port'], $data['user'], $data['password'], $data['vhost']));

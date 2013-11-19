@@ -38,6 +38,21 @@ class Configuration implements ConfigurationInterface
                     return $value;
                 })
             ->end()
+            ->validate()
+                ->ifTrue(function($value) {
+                    return null !== $value['default_connection'];
+                })
+                ->then(function($value) {
+                    if (!isset($value['connections'][$value['default_connection']])) {
+                        throw new \UnexpectedValueException(sprintf(
+                            'The default connection should be named "%s" but it does not exist',
+                            $value['default_connection']
+                        ));
+                    }
+
+                    return $value;
+                })
+            ->end()
         ;
 
         return $treeBuilder;

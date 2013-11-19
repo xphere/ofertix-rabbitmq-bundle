@@ -60,7 +60,7 @@ class ExtensionTest extends \PHPUnit_Framework_TestCase
             'default_connection' => 'default',
         );
 
-        $this->setExpectedException('UnexpectedValueException');
+        $this->setExpectedException('Symfony\Component\Config\Definition\Exception\InvalidConfigurationException');
 
         $this->processConfig($configuration);
     }
