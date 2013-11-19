@@ -21,13 +21,16 @@ class Configuration implements ConfigurationInterface
 
         $rootNode
             ->canBeDisabled()
+
             ->children()
                 ->scalarNode('default_connection')
                     ->defaultNull()
                 ->end()
             ->end()
+
             ->fixXmlConfig('connection')
             ->append($this->getConnectionsNode())
+
             ->validate()
                 ->ifTrue(function($value) {
                     return null === $value['default_connection'];
@@ -38,6 +41,7 @@ class Configuration implements ConfigurationInterface
                     return $value;
                 })
             ->end()
+
             ->validate()
                 ->ifTrue(function($value) {
                     return null !== $value['default_connection'] && !isset($value['connections'][$value['default_connection']]);
