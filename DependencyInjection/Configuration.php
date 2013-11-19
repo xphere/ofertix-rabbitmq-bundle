@@ -22,7 +22,7 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->children()
                 ->scalarNode('default_connection')
-                    ->defaultValue('default')
+                    ->defaultNull()
                 ->end()
             ->end()
             ->fixXmlConfig('connection')

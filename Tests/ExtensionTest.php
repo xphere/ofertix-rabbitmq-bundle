@@ -16,6 +16,23 @@ class ExtensionTest extends \PHPUnit_Framework_TestCase
         $this->assertContains('localhost', $definition->getArguments());
     }
 
+    public function testAutodiscoverDefaultConnection()
+    {
+        $configuration = array(
+            'connections' => array(
+                'my_connection' => array(
+                    'host' => 'example.org',
+                ),
+            ),
+        );
+
+        $container = $this->processConfig($configuration);
+        $definition = $container->findDefinition('ofertix_rabbitmq');
+
+        $this->assertEquals('PhpAmqpLib\Connection\AMQPConnection', $definition->getClass());
+        $this->assertContains('example.org', $definition->getArguments());
+    }
+
     public function testManuallySetDefaultConnection()
     {
         $configuration = array(
