@@ -1,0 +1,29 @@
+{
+    "name": "ofertix/rabbitmq-bundle",
+    "description": "Integrates RabbitMQ with Symfony2 through php-amqplib",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Berny Cantos",
+            "email": "berny.cantos@ofertix.com"
+        }
+    ],
+    "require": {
+        "symfony/framework-bundle" : "~2.0",
+        "videlalvaro/php-amqplib": "~2.2"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "~3.7"
+    },
+    "autoload": {
+        "psr-0": {
+            "Ofertix\\RabbitMqBundle\\": ""
+        }
+    },
+    "target-dir" : "Ofertix/RabbitMqBundle",
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.0-dev"
+        }
+    }
+}
