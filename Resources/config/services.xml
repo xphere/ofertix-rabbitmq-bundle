@@ -5,10 +5,10 @@
     xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <parameters>
-        <parameter key="ofertix_rabbitmq.class">PhpAmqpLib\Connection\AMQPConnection</parameter>
+        <parameter key="ofertix_rabbitmq.connection.class">PhpAmqpLib\Connection\AMQPConnection</parameter>
     </parameters>
 
     <services>
-        <service id="ofertix_rabbitmq" class="%ofertix_rabbitmq.class%" />
+        <service id="ofertix_rabbitmq.abstract_connection" class="%ofertix_rabbitmq.connection.class%" abstract="true" />
     </services>
 </container>
