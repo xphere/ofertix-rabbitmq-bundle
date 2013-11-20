@@ -27,12 +27,13 @@ class ExchangeManagerTest extends \PHPUnit_Framework_TestCase
         $channel
             ->expects($this->once())
             ->method('exchange_declare')
-            ->with('test_exchange', 'fanout', false, true, true, false, false, null, null)
+            ->with('test_exchange', 'fanout', false, true, true, false, false, array(), null)
         ;
 
         $xm = new ExchangeManager();
         $xm->setExchange('test_exchange', array(
             'type' => 'fanout',
+            'arguments' => array(),
             'durable' => true,
         ));
         $xm->getExchange('test_exchange', $channel);
