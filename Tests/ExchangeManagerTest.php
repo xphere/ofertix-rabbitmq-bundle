@@ -21,6 +21,23 @@ class ExchangeManagerTest extends \PHPUnit_Framework_TestCase
         $xm->getExchange('test_exchange', $channel);
     }
 
+    public function testFromArray()
+    {
+        $channel = $this->mockChannel();
+        $channel
+            ->expects($this->once())
+            ->method('exchange_declare')
+            ->with('test_exchange', 'fanout', false, true, true, false, false, null, null)
+        ;
+
+        $xm = new ExchangeManager();
+        $xm->setExchange('test_exchange', array(
+            'type' => 'fanout',
+            'durable' => true,
+        ));
+        $xm->getExchange('test_exchange', $channel);
+    }
+
     /**
      * @return \PHPUnit_Framework_MockObject_MockObject|AMQPChannel
      */
