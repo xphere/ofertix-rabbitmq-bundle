@@ -17,7 +17,7 @@ class ExchangeManagerTest extends \PHPUnit_Framework_TestCase
         ;
 
         $xm = new ExchangeManager();
-        $xm->setExchange('test_exchange', 'direct');
+        $xm->setExchange('test_exchange');
         $xm->getExchange('test_exchange', $channel);
     }
 

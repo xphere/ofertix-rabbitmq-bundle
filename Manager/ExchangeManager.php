@@ -13,7 +13,7 @@ class ExchangeManager
         return call_user_func_array(array($channel, 'exchange_declare'), $this->optionsFor($name));
     }
 
-    public function setExchange($name, $type, $passive = false, $durable = false, $auto_delete = true, $internal = false, $nowait = false, $arguments = null, $ticket = null)
+    public function setExchange($name, $type = array(), $passive = false, $durable = false, $auto_delete = true, $internal = false, $nowait = false, $arguments = null, $ticket = null)
     {
         if (is_array($type)) {
             $default = array(
