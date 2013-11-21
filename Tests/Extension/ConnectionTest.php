@@ -61,16 +61,4 @@ class ConnectionTest extends ExtensionAbstractTest
 
         $this->processConfig($configuration);
     }
-
-    public function testDisable()
-    {
-        $configuration = array(
-            'enabled' => false,
-        );
-
-        $this->setExpectedException('Symfony\Component\DependencyInjection\Exception\InvalidArgumentException');
-
-        $container = $this->processConfig($configuration);
-        $container->findDefinition('ofertix_rabbitmq');
-    }
 }
