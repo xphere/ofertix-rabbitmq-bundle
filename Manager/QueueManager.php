@@ -8,9 +8,36 @@ class QueueManager
 {
     protected $queues = array();
 
+    static protected $defaults = array(
+        'name' => '',
+        'passive' => false,
+        'durable' => false,
+        'exclusive' => false,
+        'auto_delete' => true,
+        'nowait' => false,
+        'arguments' => null,
+        'ticket' => null,
+    );
+
     public function setQueue($name, $passive = false, $durable = false, $exclusive = false, $auto_delete = true, $nowait = false, $arguments = null, $ticket = null)
     {
-        $this->queues[$name] = func_get_args();
+        if (is_array($passive)) {
+            $data = array_merge(self::$defaults, $passive);
+            $data['name'] = $name;
+        } else {
+            $data = array(
+                'name' => $name,
+                'passive' => $passive,
+                'durable' => $durable,
+                'exclusive' => $exclusive,
+                'auto_delete' => $auto_delete,
+                'nowait' => $nowait,
+                'arguments' => $arguments,
+                'ticket' => $ticket,
+            );
+        }
+
+        $this->queues[$name] = $data;
     }
 
     public function getQueue($name, AMQPChannel $channel)

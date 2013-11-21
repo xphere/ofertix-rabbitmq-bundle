@@ -43,6 +43,25 @@ class QueueManagerTest extends \PHPUnit_Framework_TestCase
         $xm->getQueue('test_queue', $this->mockChannel());
     }
 
+    public function testFromArray()
+    {
+        $channel = $this->mockChannel();
+        $channel
+            ->expects($this->once())
+            ->method('queue_declare')
+            ->with('test_queue', false, true, true, false, false, array(), null)
+        ;
+
+        $xm = new QueueManager();
+        $xm->setQueue('test_queue', array(
+            'auto_delete' => false,
+            'exclusive' => true,
+            'arguments' => array(),
+            'durable' => true,
+        ));
+        $xm->getQueue('test_queue', $channel);
+    }
+
     /**
      * @return \PHPUnit_Framework_MockObject_MockObject|AMQPChannel
      */
