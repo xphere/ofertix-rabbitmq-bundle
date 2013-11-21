@@ -6,7 +6,19 @@ use PhpAmqpLib\Channel\AMQPChannel;
 
 class ExchangeManager
 {
-    protected $exchangeOptions = array();
+    protected $exchanges = array();
+
+    protected $defaults = array(
+        'name' => '',
+        'type' => 'direct',
+        'passive' => false,
+        'durable' => false,
+        'auto_delete' => true,
+        'internal' => false,
+        'nowait' => false,
+        'arguments' => null,
+        'ticket' => null,
+    );
 
     public function getExchange($name, AMQPChannel $channel)
     {
@@ -16,27 +28,12 @@ class ExchangeManager
     public function setExchange($name, $type = array(), $passive = false, $durable = false, $auto_delete = true, $internal = false, $nowait = false, $arguments = null, $ticket = null)
     {
         if (is_array($type)) {
-            $default = array(
-                'name' => '',
-                'type' => 'direct',
-                'passive' => false,
-                'durable' => false,
-                'auto_delete' => true,
-                'internal' => false,
-                'nowait' => false,
-                'arguments' => null,
-                'ticket' => null,
-            );
-            $options = array_merge(
-                $default,
-                array_key_exists($name, $this->exchangeOptions) ? $this->exchangeOptions[$name] : array(),
-                $type
-            );
+            $knownOptions = array_key_exists($name, $this->exchanges) ? $this->exchanges[$name] : array();
+            $options = array_merge($this->defaults, $knownOptions, $type);
             $options['name'] = $name;
         } else {
             $options = array(
-                'name' => $name,
-                'type' => $type,
+                'name' => $name, 'type' => $type,
                 'passive' => $passive,
                 'durable' => $durable,
                 'auto_delete' => $auto_delete,
@@ -47,15 +44,15 @@ class ExchangeManager
             );
         }
 
-        $this->exchangeOptions[$name] = $options;
+        $this->exchanges[$name] = $options;
     }
 
     public function optionsFor($name)
     {
-        if (false === array_key_exists($name, $this->exchangeOptions)) {
+        if (false === array_key_exists($name, $this->exchanges)) {
             throw new \OutOfBoundsException(sprintf('Exchange named "%s" not found', $name));
         }
 
-        return $this->exchangeOptions[$name];
+        return $this->exchanges[$name];
     }
 }
