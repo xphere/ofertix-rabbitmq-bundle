@@ -2,6 +2,7 @@
 
 namespace Ofertix\RabbitMqBundle\DependencyInjection;
 
+use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
@@ -18,10 +19,16 @@ class Configuration implements ConfigurationInterface
     {
         $treeBuilder = new TreeBuilder();
         $rootNode = $treeBuilder->root($this->alias);
+        $rootNode->canBeDisabled();
+        $this->setupConnectionNode($rootNode);
+        $this->setupExchangesNode($rootNode);
 
-        $rootNode
-            ->canBeDisabled()
+        return $treeBuilder;
+    }
 
+    protected function setupConnectionNode(ArrayNodeDefinition $node)
+    {
+        $node
             ->children()
                 ->scalarNode('default_connection')
                     ->defaultNull()
@@ -54,8 +61,6 @@ class Configuration implements ConfigurationInterface
                 })
             ->end()
         ;
-
-        return $treeBuilder;
     }
 
     protected function getConnectionsNode()
@@ -85,6 +90,26 @@ class Configuration implements ConfigurationInterface
                     ->end()
                 ->end()
             ->end()
+        ;
+
+        return $node;
+    }
+
+    protected function setupExchangesNode(ArrayNodeDefinition $node)
+    {
+        $node
+            ->fixXmlConfig('exchange')
+            ->append($this->getExchangesNode())
+        ;
+    }
+
+    protected function getExchangesNode()
+    {
+        $treeBuilder = new TreeBuilder();
+        $node = $treeBuilder->root('exchanges');
+        $node
+            ->useAttributeAsKey('name')
+            ->prototype('array')
         ;
 
         return $node;
