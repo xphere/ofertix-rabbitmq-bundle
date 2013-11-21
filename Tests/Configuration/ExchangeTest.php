@@ -22,6 +22,23 @@ class ExchangeTest extends ConfigurationAbstractTest
             'empty when null' => array(
                 array('exchanges' => null, ), array(),
             ),
+            'one exchange with default values' => array(
+                array('exchanges' => array(
+                    'default_exchange' => null,
+                )),
+                array(
+                    'default_exchange' => array(
+                        'type' => 'direct',
+                        'passive' => false,
+                        'durable' => false,
+                        'auto_delete' => true,
+                        'internal' => false,
+                        'nowait' => false,
+                        'arguments' => null,
+                        'ticket' => null,
+                    )
+                ),
+            ),
         );
     }
 }
