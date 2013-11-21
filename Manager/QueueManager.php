@@ -6,12 +6,15 @@ use PhpAmqpLib\Channel\AMQPChannel;
 
 class QueueManager
 {
-    public function setQueue($name)
+    protected $queues = array();
+
+    public function setQueue($name, $passive = false, $durable = false, $exclusive = false, $auto_delete = true, $nowait = false, $arguments = null, $ticket = null)
     {
+        $this->queues[$name] = func_get_args();
     }
 
     public function getQueue($name, AMQPChannel $channel)
     {
-        $channel->queue_declare($name, false, false, false, true, false, null, null);
+        return call_user_func_array(array($channel, 'queue_declare'), $this->queues[$name]);
     }
 }
