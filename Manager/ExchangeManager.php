@@ -47,6 +47,11 @@ class ExchangeManager
         $this->exchanges[$name] = $options;
     }
 
+    public function getExchangeNames()
+    {
+        return array_keys($this->exchanges);
+    }
+
     public function optionsFor($name)
     {
         if (false === array_key_exists($name, $this->exchanges)) {
