@@ -1,11 +1,8 @@
 <?php
 
-namespace Ofertix\RabbitMqBundle\Tests;
+namespace Ofertix\RabbitMqBundle\Tests\Extension;
 
-use Ofertix\RabbitMqBundle as Bundle;
-use Symfony\Component\DependencyInjection\ContainerBuilder;
-
-class ExtensionTest extends \PHPUnit_Framework_TestCase
+class ConnectionTest extends ExtensionAbstractTest
 {
     public function testDefaults()
     {
@@ -75,25 +72,5 @@ class ExtensionTest extends \PHPUnit_Framework_TestCase
 
         $container = $this->processConfig($configuration);
         $container->findDefinition('ofertix_rabbitmq');
-    }
-
-    protected function processConfig(array $config)
-    {
-        $extension = $this->getExtension();
-        $container = $this->getContainer();
-        $extension->load(func_get_args(), $container);
-        $container->compile();
-
-        return $container;
-    }
-
-    protected function getExtension()
-    {
-        return new Bundle\DependencyInjection\OfertixRabbitMqExtension();
-    }
-
-    protected function getContainer()
-    {
-        return new ContainerBuilder();
     }
 }
