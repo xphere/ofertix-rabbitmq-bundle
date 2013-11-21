@@ -4,12 +4,24 @@ namespace Ofertix\RabbitMqBundle\Tests\Configuration;
 
 class ExchangeTest extends ConfigurationAbstractTest
 {
-    public function testEmptyExchangeAllowed()
+    /** @dataProvider providerValidExchanges */
+    public function testValidExchanges(array $config, array $expected)
     {
-        $expected = array();
-        $result = $this->processConfig(array());
+        $result = $this->processConfig($config);
 
         $this->assertArrayHasKey('exchanges', $result);
         $this->assertEquals($expected, $result['exchanges']);
+    }
+
+    public function providerValidExchanges()
+    {
+        return array(
+            'empty by default' => array(
+                array(), array(),
+            ),
+            'empty when null' => array(
+                array('exchanges' => null, ), array(),
+            ),
+        );
     }
 }
