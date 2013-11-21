@@ -29,6 +29,12 @@ class OfertixRabbitMqExtension extends Extension
         }
 
         $container->setAlias('ofertix_rabbitmq', "ofertix_rabbitmq.connection.{$config['default_connection']}");
+
+        $definition = $container->findDefinition('ofertix_rabbitmq.exchange_manager');
+        foreach ($config['exchanges'] as $name => $arguments) {
+            array_unshift($arguments, $name);
+            $definition->addMethodCall('setExchange', $arguments);
+        }
     }
 
     public function getAlias()
