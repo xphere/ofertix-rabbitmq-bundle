@@ -5,12 +5,14 @@ namespace Ofertix\RabbitMqBundle\Tests\Configuration;
 class ExchangeTest extends ConfigurationAbstractTest
 {
     /** @dataProvider providerValidExchanges */
-    public function testValidExchanges(array $config, array $expected)
+    public function testValidExchanges(array $config, array $expected = null)
     {
         $result = $this->processConfig($config);
 
         $this->assertArrayHasKey('exchanges', $result);
-        $this->assertEquals($expected, $result['exchanges']);
+        if (null !== $expected) {
+            $this->assertEquals($expected, $result['exchanges']);
+        }
     }
 
     public function providerValidExchanges()
@@ -38,6 +40,37 @@ class ExchangeTest extends ConfigurationAbstractTest
                         'ticket' => null,
                     )
                 ),
+            ),
+            'exchange valid types' => array(
+                array(
+                    'exchanges' => array(
+                        'direct' => array('type' => 'direct', ),
+                        'fanout' => array('type' => 'fanout', ),
+                        'topic' => array('type' => 'topic', ),
+                        'headers' => array('type' => 'headers', ),
+                    )
+                )
+            )
+        );
+    }
+
+    /** @dataProvider providerInvalidExchanges */
+    public function testInvalidExchanges(array $config, $exceptionName)
+    {
+        $this->setExpectedException($exceptionName);
+        $this->processConfig($config);
+    }
+
+    public function providerInvalidExchanges()
+    {
+        return array(
+            'invalid type of exchange' => array(
+                array(
+                    'exchanges' => array(
+                        'invalid_type' => array('type' => 'thiswillneverbeavalidtype', ),
+                    )
+                ),
+                'Symfony\Component\Config\Definition\Exception\InvalidConfigurationException',
             ),
         );
     }
