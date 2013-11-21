@@ -22,17 +22,31 @@ class OfertixRabbitMqExtension extends Extension
         $loader = new Loader\XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.xml');
 
-        foreach ($config['connections'] as $name => $data) {
-            $connection = new DefinitionDecorator('ofertix_rabbitmq.abstract_connection');
-            $connection->setArguments(array($data['host'], $data['port'], $data['user'], $data['password'], $data['vhost']));
-            $container->setDefinition("ofertix_rabbitmq.connection.{$name}", $connection);
-        }
-
-        $container->setAlias('ofertix_rabbitmq', "ofertix_rabbitmq.connection.{$config['default_connection']}");
+        $this->setupConnections($config, $container);
+        $this->setupExchanges($config, $container);
     }
 
     public function getAlias()
     {
         return 'ofertix_rabbitmq';
+    }
+
+    protected function setupConnections(array $config, ContainerBuilder $container)
+    {
+        $container->setAlias('ofertix_rabbitmq', "ofertix_rabbitmq.connection.{$config['default_connection']}");
+        foreach ($config['connections'] as $name => $data) {
+            $connection = new DefinitionDecorator('ofertix_rabbitmq.abstract_connection');
+            $connection->setArguments(array($data['host'], $data['port'], $data['user'], $data['password'], $data['vhost']));
+            $container->setDefinition("ofertix_rabbitmq.connection.{$name}", $connection);
+        }
+    }
+
+    protected function setupExchanges(array $config, ContainerBuilder $container)
+    {
+        $definition = $container->findDefinition('ofertix_rabbitmq.exchange_manager');
+        foreach ($config['exchanges'] as $name => $arguments) {
+            array_unshift($arguments, $name);
+            $definition->addMethodCall('setExchange', $arguments);
+        }
     }
 }
