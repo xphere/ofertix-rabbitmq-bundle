@@ -15,6 +15,10 @@ class QueueManager
 
     public function getQueue($name, AMQPChannel $channel)
     {
+        if (false === array_key_exists($name, $this->queues)) {
+            throw new \OutOfBoundsException(sprintf('Queue named "%s" not found', $name));
+        }
+
         return call_user_func_array(array($channel, 'queue_declare'), $this->queues[$name]);
     }
 }

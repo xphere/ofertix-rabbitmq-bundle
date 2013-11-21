@@ -35,6 +35,14 @@ class QueueManagerTest extends \PHPUnit_Framework_TestCase
         $xm->getQueue('test_queue', $channel);
     }
 
+    public function testGetNonExistentQueue()
+    {
+        $this->setExpectedException('OutOfBoundsException', 'Queue named "test_queue" not found');
+
+        $xm = new QueueManager();
+        $xm->getQueue('test_queue', $this->mockChannel());
+    }
+
     /**
      * @return \PHPUnit_Framework_MockObject_MockObject|AMQPChannel
      */
