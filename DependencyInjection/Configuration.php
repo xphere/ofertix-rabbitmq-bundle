@@ -22,6 +22,7 @@ class Configuration implements ConfigurationInterface
         $rootNode->canBeDisabled();
         $this->setupConnectionNode($rootNode);
         $this->setupExchangesNode($rootNode);
+        $this->setupQueuesNode($rootNode);
 
         return $treeBuilder;
     }
@@ -129,6 +130,48 @@ class Configuration implements ConfigurationInterface
                     ->end()
                     ->booleanNode('internal')
                         ->defaultValue(false)
+                    ->end()
+                    ->booleanNode('nowait')
+                        ->defaultValue(false)
+                    ->end()
+                    ->variableNode('arguments')
+                        ->defaultNull()
+                    ->end()
+                    ->scalarNode('ticket')
+                        ->defaultNull()
+                    ->end()
+        ;
+
+        return $node;
+    }
+
+    protected function setupQueuesNode(ArrayNodeDefinition $node)
+    {
+        $node
+            ->fixXmlConfig('queue')
+            ->append($this->getQueuesNode())
+        ;
+    }
+
+    protected function getQueuesNode()
+    {
+        $treeBuilder = new TreeBuilder();
+        $node = $treeBuilder->root('queues');
+        $node
+            ->useAttributeAsKey('name')
+            ->prototype('array')
+                ->children()
+                    ->booleanNode('passive')
+                        ->defaultValue(false)
+                    ->end()
+                    ->booleanNode('durable')
+                        ->defaultValue(false)
+                    ->end()
+                    ->booleanNode('exclusive')
+                        ->defaultValue(false)
+                    ->end()
+                    ->booleanNode('auto_delete')
+                        ->defaultValue(true)
                     ->end()
                     ->booleanNode('nowait')
                         ->defaultValue(false)
