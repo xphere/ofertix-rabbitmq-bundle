@@ -7,10 +7,12 @@
     <parameters>
         <parameter key="ofertix_rabbitmq.connection.class">PhpAmqpLib\Connection\AMQPConnection</parameter>
         <parameter key="ofertix_rabbitmq.exchange_manager.class">Ofertix\RabbitMqBundle\Manager\ExchangeManager</parameter>
+        <parameter key="ofertix_rabbitmq.queue_manager.class">Ofertix\RabbitMqBundle\Manager\QueueManager</parameter>
     </parameters>
 
     <services>
         <service id="ofertix_rabbitmq.abstract_connection" class="%ofertix_rabbitmq.connection.class%" abstract="true" />
         <service id="ofertix_rabbitmq.exchange_manager" class="%ofertix_rabbitmq.exchange_manager.class%" />
+        <service id="ofertix_rabbitmq.queue_manager" class="%ofertix_rabbitmq.queue_manager.class%" />
     </services>
 </container>
