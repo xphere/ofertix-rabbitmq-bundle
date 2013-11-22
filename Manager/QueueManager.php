@@ -16,7 +16,8 @@ class QueueManager
     public function setQueue($name, $passive = false, $durable = false, $exclusive = false, $auto_delete = true, $nowait = false, $arguments = null, $ticket = null)
     {
         if (is_array($passive)) {
-            $data = array_merge($this->getDefaultSettings(), $passive);
+            $knownOptions = array_key_exists($name, $this->queues) ? $this->queues[$name] : array();
+            $data = array_merge($this->getDefaultSettings(), $knownOptions, $passive);
             $data['name'] = $name;
         } else {
             $data = array(
