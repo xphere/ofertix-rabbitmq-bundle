@@ -8,21 +8,15 @@ class QueueManager
 {
     protected $queues = array();
 
-    static protected $defaults = array(
-        'name' => '',
-        'passive' => false,
-        'durable' => false,
-        'exclusive' => false,
-        'auto_delete' => true,
-        'nowait' => false,
-        'arguments' => null,
-        'ticket' => null,
-    );
+    public function getQueue($name, AMQPChannel $channel)
+    {
+        return call_user_func_array(array($channel, 'queue_declare'), $this->getSettingsFor($name));
+    }
 
     public function setQueue($name, $passive = false, $durable = false, $exclusive = false, $auto_delete = true, $nowait = false, $arguments = null, $ticket = null)
     {
         if (is_array($passive)) {
-            $data = array_merge(self::$defaults, $passive);
+            $data = array_merge($this->getDefaultSettings(), $passive);
             $data['name'] = $name;
         } else {
             $data = array(
@@ -40,12 +34,26 @@ class QueueManager
         $this->queues[$name] = $data;
     }
 
-    public function getQueue($name, AMQPChannel $channel)
+    protected function getDefaultSettings()
+    {
+        return array(
+            'name' => '',
+            'passive' => false,
+            'durable' => false,
+            'exclusive' => false,
+            'auto_delete' => true,
+            'nowait' => false,
+            'arguments' => null,
+            'ticket' => null,
+        );
+    }
+
+    protected function getSettingsFor($name)
     {
         if (false === array_key_exists($name, $this->queues)) {
             throw new \OutOfBoundsException(sprintf('Queue named "%s" not found', $name));
         }
 
-        return call_user_func_array(array($channel, 'queue_declare'), $this->queues[$name]);
+        return $this->queues[$name];
     }
 }

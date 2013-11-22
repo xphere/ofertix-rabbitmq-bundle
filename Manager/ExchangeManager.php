@@ -8,32 +8,21 @@ class ExchangeManager
 {
     protected $exchanges = array();
 
-    protected $defaults = array(
-        'name' => '',
-        'type' => 'direct',
-        'passive' => false,
-        'durable' => false,
-        'auto_delete' => true,
-        'internal' => false,
-        'nowait' => false,
-        'arguments' => null,
-        'ticket' => null,
-    );
-
     public function getExchange($name, AMQPChannel $channel)
     {
-        return call_user_func_array(array($channel, 'exchange_declare'), $this->optionsFor($name));
+        return call_user_func_array(array($channel, 'exchange_declare'), $this->getSettingsFor($name));
     }
 
     public function setExchange($name, $type = array(), $passive = false, $durable = false, $auto_delete = true, $internal = false, $nowait = false, $arguments = null, $ticket = null)
     {
         if (is_array($type)) {
             $knownOptions = array_key_exists($name, $this->exchanges) ? $this->exchanges[$name] : array();
-            $options = array_merge($this->defaults, $knownOptions, $type);
+            $options = array_merge($this->getDefaultSettings(), $knownOptions, $type);
             $options['name'] = $name;
         } else {
             $options = array(
-                'name' => $name, 'type' => $type,
+                'name' => $name,
+                'type' => $type,
                 'passive' => $passive,
                 'durable' => $durable,
                 'auto_delete' => $auto_delete,
@@ -52,7 +41,22 @@ class ExchangeManager
         return array_keys($this->exchanges);
     }
 
-    public function optionsFor($name)
+    protected function getDefaultSettings()
+    {
+        return array(
+            'name' => '',
+            'type' => 'direct',
+            'passive' => false,
+            'durable' => false,
+            'auto_delete' => true,
+            'internal' => false,
+            'nowait' => false,
+            'arguments' => null,
+            'ticket' => null,
+        );
+    }
+
+    protected function getSettingsFor($name)
     {
         if (false === array_key_exists($name, $this->exchanges)) {
             throw new \OutOfBoundsException(sprintf('Exchange named "%s" not found', $name));
