@@ -24,6 +24,7 @@ class OfertixRabbitMqExtension extends Extension
 
         $this->setupConnections($config, $container);
         $this->setupExchanges($config, $container);
+        $this->setupQueues($config, $container);
     }
 
     public function getAlias()
@@ -47,6 +48,15 @@ class OfertixRabbitMqExtension extends Extension
         foreach ($config['exchanges'] as $name => $arguments) {
             array_unshift($arguments, $name);
             $definition->addMethodCall('setExchange', $arguments);
+        }
+    }
+
+    protected function setupQueues(array $config, ContainerBuilder $container)
+    {
+        $definition = $container->findDefinition('ofertix_rabbitmq.queue_manager');
+        foreach ($config['queues'] as $name => $arguments) {
+            array_unshift($arguments, $name);
+            $definition->addMethodCall('setQueue', $arguments);
         }
     }
 }

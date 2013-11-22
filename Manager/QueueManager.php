@@ -35,6 +35,11 @@ class QueueManager
         $this->queues[$name] = $data;
     }
 
+    public function getQueueNames()
+    {
+        return array_keys($this->queues);
+    }
+
     protected function getDefaultSettings()
     {
         return array(
