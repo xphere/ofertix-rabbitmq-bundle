@@ -1,6 +1,6 @@
 <?php
 
-namespace Ofertix\RabbitMqBundle\Tests\Extension;
+namespace Ofertix\RabbitMqBundle\Tests\DependencyInjection\Extension;
 
 class ConnectionTest extends ExtensionAbstractTest
 {

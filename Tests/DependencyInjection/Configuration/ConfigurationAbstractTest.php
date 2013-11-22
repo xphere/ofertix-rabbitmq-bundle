@@ -1,6 +1,6 @@
 <?php
 
-namespace Ofertix\RabbitMqBundle\Tests\Configuration;
+namespace Ofertix\RabbitMqBundle\Tests\DependencyInjection\Configuration;
 
 use Ofertix\RabbitMqBundle\DependencyInjection\Configuration;
 use Symfony\Component\Config\Definition\Processor;

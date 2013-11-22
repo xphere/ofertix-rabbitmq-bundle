@@ -1,6 +1,6 @@
 <?php
 
-namespace Ofertix\RabbitMqBundle\Tests;
+namespace Ofertix\RabbitMqBundle\Tests\Manager;
 
 use Ofertix\RabbitMqBundle\Manager\ExchangeManager;
 use PhpAmqpLib\Channel\AMQPChannel;

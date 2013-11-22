@@ -1,6 +1,6 @@
 <?php
 
-namespace Ofertix\RabbitMqBundle\Tests\Configuration;
+namespace Ofertix\RabbitMqBundle\Tests\DependencyInjection\Configuration;
 
 class ConfigurationTest extends ConfigurationAbstractTest
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace Ofertix\RabbitMqBundle\Tests\Extension;
+namespace Ofertix\RabbitMqBundle\Tests\DependencyInjection\Extension;
 
 use Ofertix\RabbitMqBundle\DependencyInjection\OfertixRabbitMqExtension;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
