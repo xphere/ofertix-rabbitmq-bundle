@@ -4,52 +4,61 @@ namespace Ofertix\RabbitMqBundle\Tests\DependencyInjection\Configuration;
 
 class ConfigurationTest extends ConfigurationAbstractTest
 {
-    static protected $connection_data = array(
-        'default' => array(
-            'host' => 'localhost',
-            'port' => 5672,
-            'user' => 'guest',
-            'password' => 'guest',
-            'vhost' => '/',
-        ),
-        'org' => array(
-            'host' => 'example.org',
-            'port' => 6725,
-            'user' => 'anonymous',
-            'password' => 'anonymous',
-            'vhost' => '/rabbit-mq',
-        ),
-        'net' => array(
-            'host' => 'example.net',
-            'port' => 7256,
-            'user' => 'myuser',
-            'password' => 'mypassword',
-            'vhost' => '/dev/shm/amqp',
-        )
-    );
-
-    public function testGetDefaultConnection()
+    /**
+     * @dataProvider providerValidConnections
+     * @param array $expected
+     * @param array $config
+     */
+    public function testValidConnections(array $expected, array $config = null)
     {
-        $expected = array(
-            'default' => self::$connection_data['default'],
-        );
-        $result = $this->processConfig(array());
+        if (null === $config) {
+            $config = array( 'connections' => $expected, );
+        }
+        $result = $this->processConfig($config);
 
         $this->assertArrayHasKey('connections', $result);
         $this->assertEquals($expected, $result['connections']);
     }
 
-    public function testConnections()
+    public function providerValidConnections()
     {
-        $expected = array(
-            'connection_name' => self::$connection_data['org'],
+        $default = array(
+            'host' => 'localhost',
+            'port' => 5672,
+            'user' => 'guest',
+            'password' => 'guest',
+            'vhost' => '/',
         );
-        $result = $this->processConfig(array(
-            'connections' => $expected,
-        ));
+        $org = array(
+            'host' => 'example.org',
+            'port' => 6725,
+            'user' => 'anonymous',
+            'password' => 'anonymous',
+            'vhost' => '/rabbit-mq',
+        );
+        $net = array(
+            'host' => 'example.net',
+            'port' => 7256,
+            'user' => 'myuser',
+            'password' => 'mypassword',
+            'vhost' => '/dev/shm/amqp',
+        );
 
-        $this->assertArrayHasKey('connections', $result);
-        $this->assertEquals($expected, $result['connections']);
+        return array(
+            'default values when empty config' => array(
+                array('default' => $default, ),
+                array(),
+            ),
+            'fully configured connection' => array(
+                array('default' => $org, ),
+            ),
+            'fully configured connection with name' => array(
+                array('connection_name' => $org, ),
+            ),
+            'multiple connections' => array(
+                array('default' => $default, 'alternative' => $net, ),
+            ),
+        );
     }
 
     public function testInvalidPort()
@@ -63,19 +72,5 @@ class ConfigurationTest extends ConfigurationAbstractTest
                 ),
             ),
         ));
-    }
-
-    public function testMultipleConnections()
-    {
-        $expected = array(
-            'default' => self::$connection_data['default'],
-            'alternative' => self::$connection_data['net'],
-        );
-        $result = $this->processConfig(array(
-            'connections' => $expected,
-        ));
-
-        $this->assertArrayHasKey('connections', $result);
-        $this->assertEquals($expected, $result['connections']);
     }
 }
