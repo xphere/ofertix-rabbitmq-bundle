@@ -13,6 +13,18 @@ class ConnectionTest extends ExtensionAbstractTest
         $this->assertContains('localhost', $definition->getArguments());
     }
 
+    public function testEmptyConnectionList()
+    {
+        $container = $this->processConfig(array(
+            'connections' => array(
+            ),
+        ));
+        $definition = $container->findDefinition('ofertix_rabbitmq');
+
+        $this->assertEquals('PhpAmqpLib\Connection\AMQPConnection', $definition->getClass());
+        $this->assertContains('localhost', $definition->getArguments());
+    }
+
     public function testAutodiscoverDefaultConnection()
     {
         $configuration = array(

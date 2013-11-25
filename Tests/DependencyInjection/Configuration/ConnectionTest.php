@@ -2,7 +2,7 @@
 
 namespace Ofertix\RabbitMqBundle\Tests\DependencyInjection\Configuration;
 
-class ConfigurationTest extends ConfigurationAbstractTest
+class ConnectionTest extends ConfigurationAbstractTest
 {
     /**
      * @dataProvider providerValidConnections
