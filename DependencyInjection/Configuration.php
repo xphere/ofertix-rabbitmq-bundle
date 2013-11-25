@@ -20,24 +20,24 @@ class Configuration implements ConfigurationInterface
         $treeBuilder = new TreeBuilder();
         $rootNode = $treeBuilder->root($this->alias);
         $rootNode->canBeDisabled();
-        $this->setupConnectionNode($rootNode);
-        $this->setupExchangesNode($rootNode);
-        $this->setupQueuesNode($rootNode);
+        $this->setupConnections($rootNode);
+        $this->setupExchanges($rootNode);
+        $this->setupQueues($rootNode);
 
         return $treeBuilder;
     }
 
-    protected function setupConnectionNode(ArrayNodeDefinition $node)
+    protected function setupConnections(ArrayNodeDefinition $node)
     {
         $node
+            ->addDefaultsIfNotSet()
+
             ->children()
                 ->scalarNode('default_connection')
                     ->defaultNull()
                 ->end()
+                ->append($this->getConnectionsNode())
             ->end()
-
-            ->fixXmlConfig('connection')
-            ->append($this->getConnectionsNode())
 
             ->validate()
                 ->ifTrue(function($value) {
@@ -70,8 +70,10 @@ class Configuration implements ConfigurationInterface
         $node = $treeBuilder->root('connections');
 
         $node
+            ->fixXmlConfig('connection')
             ->addDefaultChildrenIfNoneSet('default')
             ->useAttributeAsKey('name')
+
             ->prototype('array')
                 ->children()
                     ->scalarNode('host')
@@ -91,12 +93,23 @@ class Configuration implements ConfigurationInterface
                     ->end()
                 ->end()
             ->end()
+
+            ->beforeNormalization()
+                ->always()
+                ->then(function($value) {
+                    if (empty($value)) {
+                        $value = array('default' => array(), );
+                    }
+
+                    return $value;
+                })
+            ->end()
         ;
 
         return $node;
     }
 
-    protected function setupExchangesNode(ArrayNodeDefinition $node)
+    protected function setupExchanges(ArrayNodeDefinition $node)
     {
         $node
             ->fixXmlConfig('exchange')
@@ -145,7 +158,7 @@ class Configuration implements ConfigurationInterface
         return $node;
     }
 
-    protected function setupQueuesNode(ArrayNodeDefinition $node)
+    protected function setupQueues(ArrayNodeDefinition $node)
     {
         $node
             ->fixXmlConfig('queue')

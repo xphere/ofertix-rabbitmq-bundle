@@ -1,12 +1,24 @@
 <?php
 
-namespace Ofertix\RabbitMqBundle\Tests\Extension;
+namespace Ofertix\RabbitMqBundle\Tests\DependencyInjection\Extension;
 
 class ConnectionTest extends ExtensionAbstractTest
 {
     public function testDefaults()
     {
         $container = $this->processConfig(array());
+        $definition = $container->findDefinition('ofertix_rabbitmq');
+
+        $this->assertEquals('PhpAmqpLib\Connection\AMQPConnection', $definition->getClass());
+        $this->assertContains('localhost', $definition->getArguments());
+    }
+
+    public function testEmptyConnectionList()
+    {
+        $container = $this->processConfig(array(
+            'connections' => array(
+            ),
+        ));
         $definition = $container->findDefinition('ofertix_rabbitmq');
 
         $this->assertEquals('PhpAmqpLib\Connection\AMQPConnection', $definition->getClass());
