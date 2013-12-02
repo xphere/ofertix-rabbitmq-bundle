@@ -7,8 +7,9 @@ class ConnectionTest extends ExtensionAbstractTest
     public function testDefaults()
     {
         $container = $this->processConfig(array());
-        $definition = $container->findDefinition('ofertix_rabbitmq');
+        $definition = $container->findDefinition('ofertix_rabbitmq.connection.default');
 
+        $this->assertSame($container->findDefinition('ofertix_rabbitmq'), $definition);
         $this->assertEquals('PhpAmqpLib\Connection\AMQPConnection', $definition->getClass());
         $this->assertContains('localhost', $definition->getArguments());
     }
@@ -19,8 +20,9 @@ class ConnectionTest extends ExtensionAbstractTest
             'connections' => array(
             ),
         ));
-        $definition = $container->findDefinition('ofertix_rabbitmq');
+        $definition = $container->findDefinition('ofertix_rabbitmq.connection.default');
 
+        $this->assertSame($container->findDefinition('ofertix_rabbitmq'), $definition);
         $this->assertEquals('PhpAmqpLib\Connection\AMQPConnection', $definition->getClass());
         $this->assertContains('localhost', $definition->getArguments());
     }
@@ -36,8 +38,9 @@ class ConnectionTest extends ExtensionAbstractTest
         );
 
         $container = $this->processConfig($configuration);
-        $definition = $container->findDefinition('ofertix_rabbitmq');
+        $definition = $container->findDefinition('ofertix_rabbitmq.connection.my_connection');
 
+        $this->assertSame($container->findDefinition('ofertix_rabbitmq'), $definition);
         $this->assertEquals('PhpAmqpLib\Connection\AMQPConnection', $definition->getClass());
         $this->assertContains('example.org', $definition->getArguments());
     }
@@ -46,6 +49,7 @@ class ConnectionTest extends ExtensionAbstractTest
     {
         $configuration = array(
             'connections' => array(
+                'default' => array(),
                 'my_connection' => array(
                     'host' => 'example.org',
                 ),
