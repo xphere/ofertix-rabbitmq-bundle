@@ -4,15 +4,6 @@ namespace Ofertix\RabbitMqBundle\Tests\DependencyInjection\Extension;
 
 class QueueTest extends ExtensionAbstractTest
 {
-    public function testDefaults()
-    {
-        $container = $this->processConfig(array());
-        $manager = $container->get('ofertix_rabbitmq.queue_manager');
-
-        $this->assertEquals('Ofertix\RabbitMqBundle\Manager\QueueManager', get_class($manager));
-        $this->assertEmpty($manager->getQueueNames());
-    }
-
     public function testDefinedQueues()
     {
         $container = $this->processConfig(array(
@@ -21,9 +12,8 @@ class QueueTest extends ExtensionAbstractTest
                 'second' => null,
             ),
         ));
-        $manager = $container->get('ofertix_rabbitmq.queue_manager');
 
-        $this->assertEquals('Ofertix\RabbitMqBundle\Manager\QueueManager', get_class($manager));
-        $this->assertEquals(array('first', 'second', ), $manager->getQueueNames());
+        $this->assertNotNull($container->getParameter('ofertix_rabbitmq.queue.first'));
+        $this->assertNotNull($container->getParameter('ofertix_rabbitmq.queue.second'));
     }
 }

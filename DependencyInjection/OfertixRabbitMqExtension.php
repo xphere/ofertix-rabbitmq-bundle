@@ -44,19 +44,15 @@ class OfertixRabbitMqExtension extends Extension
 
     protected function setupExchanges(array $config, ContainerBuilder $container)
     {
-        $definition = $container->findDefinition('ofertix_rabbitmq.exchange_manager');
         foreach ($config['exchanges'] as $name => $arguments) {
-            array_unshift($arguments, $name);
-            $definition->addMethodCall('setExchange', $arguments);
+            $container->setParameter("ofertix_rabbitmq.exchange.{$name}", $arguments);
         }
     }
 
     protected function setupQueues(array $config, ContainerBuilder $container)
     {
-        $definition = $container->findDefinition('ofertix_rabbitmq.queue_manager');
         foreach ($config['queues'] as $name => $arguments) {
-            array_unshift($arguments, $name);
-            $definition->addMethodCall('setQueue', $arguments);
+            $container->setParameter("ofertix_rabbitmq.queue.{$name}", $arguments);
         }
     }
 }

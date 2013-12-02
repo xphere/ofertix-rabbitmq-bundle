@@ -4,15 +4,6 @@ namespace Ofertix\RabbitMqBundle\Tests\DependencyInjection\Extension;
 
 class ExchangeTest extends ExtensionAbstractTest
 {
-    public function testDefaults()
-    {
-        $container = $this->processConfig(array());
-        $manager = $container->get('ofertix_rabbitmq.exchange_manager');
-
-        $this->assertEquals('Ofertix\RabbitMqBundle\Manager\ExchangeManager', get_class($manager));
-        $this->assertEmpty($manager->getExchangeNames());
-    }
-
     public function testDefinedExchanges()
     {
         $container = $this->processConfig(array(
@@ -21,9 +12,8 @@ class ExchangeTest extends ExtensionAbstractTest
                 'second' => null,
             ),
         ));
-        $manager = $container->get('ofertix_rabbitmq.exchange_manager');
 
-        $this->assertEquals('Ofertix\RabbitMqBundle\Manager\ExchangeManager', get_class($manager));
-        $this->assertEquals(array('first', 'second', ), $manager->getExchangeNames());
+        $this->assertNotNull($container->getParameter('ofertix_rabbitmq.exchange.first'));
+        $this->assertNotNull($container->getParameter('ofertix_rabbitmq.exchange.second'));
     }
 }
