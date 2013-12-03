@@ -28,6 +28,7 @@ class ConnectionTest extends ConfigurationAbstractTest
             'user' => 'guest',
             'password' => 'guest',
             'vhost' => '/',
+            'lazy' => true,
         );
         $org = array(
             'host' => 'example.org',
@@ -35,6 +36,7 @@ class ConnectionTest extends ConfigurationAbstractTest
             'user' => 'anonymous',
             'password' => 'anonymous',
             'vhost' => '/rabbit-mq',
+            'lazy' => false,
         );
         $net = array(
             'host' => 'example.net',
@@ -42,6 +44,7 @@ class ConnectionTest extends ConfigurationAbstractTest
             'user' => 'myuser',
             'password' => 'mypassword',
             'vhost' => '/dev/shm/amqp',
+            'lazy' => true,
         );
 
         return array(

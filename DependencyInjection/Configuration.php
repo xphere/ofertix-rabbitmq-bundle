@@ -95,6 +95,9 @@ class Configuration implements ConfigurationInterface
                     ->scalarNode('vhost')
                         ->defaultValue('/')
                     ->end()
+                    ->booleanNode('lazy')
+                        ->defaultTrue()
+                    ->end()
                 ->end()
             ->end()
 

@@ -6,6 +6,7 @@
 
     <parameters>
         <parameter key="ofertix_rabbitmq.connection.class">PhpAmqpLib\Connection\AMQPConnection</parameter>
+        <parameter key="ofertix_rabbitmq.lazy_connection.class">PhpAmqpLib\Connection\AMQPLazyConnection</parameter>
     </parameters>
 
     <services>

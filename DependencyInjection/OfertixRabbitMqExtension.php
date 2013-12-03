@@ -35,7 +35,15 @@ class OfertixRabbitMqExtension extends Extension
         $container->setAlias('ofertix_rabbitmq', "ofertix_rabbitmq.connection.{$config['default_connection']}");
         foreach ($config['connections'] as $name => $data) {
             $connection = new DefinitionDecorator('ofertix_rabbitmq.abstract_connection');
-            $connection->setArguments(array($data['host'], $data['port'], $data['user'], $data['password'], $data['vhost']));
+            if ($data['lazy'] === true) {
+                $connection->setClass($container->getParameter('ofertix_rabbitmq.lazy_connection.class'));
+            }
+            $connection
+                ->setPublic(true)
+                ->setArguments(array(
+                    $data['host'], $data['port'], $data['user'], $data['password'], $data['vhost']
+                ))
+            ;
             $container->setDefinition("ofertix_rabbitmq.connection.{$name}", $connection);
         }
     }
