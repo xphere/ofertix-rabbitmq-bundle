@@ -19,10 +19,13 @@ class Configuration implements ConfigurationInterface
     {
         $treeBuilder = new TreeBuilder();
         $rootNode = $treeBuilder->root($this->alias);
-        $rootNode->canBeDisabled();
-        $this->setupConnections($rootNode);
-        $this->setupExchanges($rootNode);
-        $this->setupQueues($rootNode);
+        $rootNode
+            ->canBeDisabled()
+            ->addDefaultsIfNotSet()
+            ->append($this->setupConnections($rootNode))
+            ->append($this->setupExchanges())
+            ->append($this->setupQueues())
+        ;
 
         return $treeBuilder;
     }
@@ -36,7 +39,6 @@ class Configuration implements ConfigurationInterface
                 ->scalarNode('default_connection')
                     ->defaultNull()
                 ->end()
-                ->append($this->getConnectionsNode())
             ->end()
 
             ->validate()
@@ -62,6 +64,8 @@ class Configuration implements ConfigurationInterface
                 })
             ->end()
         ;
+
+        return $this->getConnectionsNode();
     }
 
     protected function getConnectionsNode()
@@ -71,8 +75,8 @@ class Configuration implements ConfigurationInterface
 
         $node
             ->fixXmlConfig('connection')
-            ->addDefaultChildrenIfNoneSet('default')
             ->useAttributeAsKey('name')
+            ->addDefaultChildrenIfNoneSet('default')
 
             ->prototype('array')
                 ->children()
@@ -109,19 +113,12 @@ class Configuration implements ConfigurationInterface
         return $node;
     }
 
-    protected function setupExchanges(ArrayNodeDefinition $node)
-    {
-        $node
-            ->fixXmlConfig('exchange')
-            ->append($this->getExchangesNode())
-        ;
-    }
-
-    protected function getExchangesNode()
+    protected function setupExchanges()
     {
         $treeBuilder = new TreeBuilder();
         $node = $treeBuilder->root('exchanges');
         $node
+            ->fixXmlConfig('exchange')
             ->useAttributeAsKey('name')
             ->prototype('array')
                 ->children()
@@ -158,19 +155,12 @@ class Configuration implements ConfigurationInterface
         return $node;
     }
 
-    protected function setupQueues(ArrayNodeDefinition $node)
-    {
-        $node
-            ->fixXmlConfig('queue')
-            ->append($this->getQueuesNode())
-        ;
-    }
-
-    protected function getQueuesNode()
+    protected function setupQueues()
     {
         $treeBuilder = new TreeBuilder();
         $node = $treeBuilder->root('queues');
         $node
+            ->fixXmlConfig('queue')
             ->useAttributeAsKey('name')
             ->prototype('array')
                 ->children()
