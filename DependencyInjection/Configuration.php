@@ -3,6 +3,7 @@
 namespace Ofertix\RabbitMqBundle\DependencyInjection;
 
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
+use Symfony\Component\Config\Definition\Builder\IntegerNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
@@ -25,6 +26,7 @@ class Configuration implements ConfigurationInterface
             ->append($this->setupConnections($rootNode))
             ->append($this->setupExchanges())
             ->append($this->setupQueues())
+            ->append($this->setupProducers())
         ;
 
         return $treeBuilder;
@@ -72,7 +74,6 @@ class Configuration implements ConfigurationInterface
     {
         $treeBuilder = new TreeBuilder();
         $node = $treeBuilder->root('connections');
-
         $node
             ->fixXmlConfig('connection')
             ->useAttributeAsKey('name')
@@ -184,6 +185,90 @@ class Configuration implements ConfigurationInterface
                     ->end()
                     ->scalarNode('ticket')
                         ->defaultNull()
+                    ->end()
+        ;
+
+        return $node;
+    }
+
+    protected function setupChannel()
+    {
+        $node = new IntegerNodeDefinition('channel');
+
+        $node
+            ->beforeNormalization()
+                ->ifTrue(function($v) {
+                    return is_string($v) && is_numeric($v);
+                })
+                ->then(function($v) {
+                    return intval($v, 10);
+                })
+            ->end()
+            ->defaultValue('')
+        ->end();
+
+        return $node;
+    }
+
+    protected function setupProducers()
+    {
+        $treeBuilder = new TreeBuilder();
+        $node = $treeBuilder->root('producers');
+        $node
+            ->fixXmlConfig('producer')
+            ->useAttributeAsKey('name')
+            ->prototype('array')
+                ->addDefaultsIfNotSet()
+                ->children()
+                    ->scalarNode('connection')
+                        ->defaultNull()
+                    ->end()
+                    ->append($this->setupChannel())
+                    ->scalarNode('exchange')
+                        ->defaultNull()
+                    ->end()
+                    ->arrayNode('parameters')
+                        ->addDefaultsIfNotSet()
+                        ->children()
+                            ->scalarNode('content_type')
+                                ->defaultValue('text/plain')
+                            ->end()
+                            ->scalarNode('content_encoding')
+                                ->defaultValue('UTF-8')
+                            ->end()
+                            ->enumNode('delivery_mode')
+                                ->defaultValue('persistent')
+                                ->values(array(1 => 'non-persistent', 2 => 'persistent', ))
+                                ->validate()
+                                    ->always(function($value) {
+                                        return $value === 'persistent' ? 2 : 1;
+                                    })
+                                ->end()
+                            ->end()
+                            ->integerNode('priority')
+                                ->defaultValue(0)
+                                ->validate()
+                                    ->ifNotInArray(range(0, 9))
+                                    ->thenInvalid('Message priority must be in range [0..9]')
+                                ->end()
+                            ->end()
+                            ->integerNode('expiration')
+                                ->defaultNull()
+                            ->end()
+                            ->scalarNode('type')
+                                ->defaultNull()
+                            ->end()
+                            ->scalarNode('user_id')
+                                ->defaultNull()
+                            ->end()
+                            ->scalarNode('app_id')
+                                ->defaultNull()
+                            ->end()
+                        ->end()
+                    ->end()
+                    ->arrayNode('headers')
+                        ->prototype('scalar')
+                        ->end()
                     ->end()
         ;
 
