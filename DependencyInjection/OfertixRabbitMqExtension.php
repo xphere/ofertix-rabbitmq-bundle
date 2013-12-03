@@ -23,8 +23,6 @@ class OfertixRabbitMqExtension extends Extension
         $loader->load('services.xml');
 
         $this->setupConnections($config, $container);
-        $this->setupExchanges($config, $container);
-        $this->setupQueues($config, $container);
     }
 
     public function getAlias()
@@ -39,20 +37,6 @@ class OfertixRabbitMqExtension extends Extension
             $connection = new DefinitionDecorator('ofertix_rabbitmq.abstract_connection');
             $connection->setArguments(array($data['host'], $data['port'], $data['user'], $data['password'], $data['vhost']));
             $container->setDefinition("ofertix_rabbitmq.connection.{$name}", $connection);
-        }
-    }
-
-    protected function setupExchanges(array $config, ContainerBuilder $container)
-    {
-        foreach ($config['exchanges'] as $name => $arguments) {
-            $container->setParameter("ofertix_rabbitmq.exchange.{$name}", $arguments);
-        }
-    }
-
-    protected function setupQueues(array $config, ContainerBuilder $container)
-    {
-        foreach ($config['queues'] as $name => $arguments) {
-            $container->setParameter("ofertix_rabbitmq.queue.{$name}", $arguments);
         }
     }
 }
