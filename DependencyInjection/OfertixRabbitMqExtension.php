@@ -4,7 +4,6 @@ namespace Ofertix\RabbitMqBundle\DependencyInjection;
 
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Config\FileLocator;
-use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\DefinitionDecorator;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
@@ -52,12 +51,10 @@ class OfertixRabbitMqExtension extends Extension
 
     protected function setupProducers(array $config, ContainerBuilder $container)
     {
-        foreach ($config['producers'] as $name => $arguments) {
-            $channel = $this->getChannel($arguments, $config, $container);
+        foreach ($config['producers'] as $name => $args) {
+            $channel = $this->getChannel($args, $config, $container);
             $producer = new DefinitionDecorator('ofertix_rabbitmq.abstract_producer');
-            $producer
-                ->setArguments(array($channel, $arguments['parameters'], $arguments['headers']))
-            ;
+            $producer->setArguments(array($channel, $args['exchange'], $args['routing_key'], $args['mandatory'], $args['immediate'], $args['ticket'], $args['parameters'], $args['headers'], ));
             $container->setDefinition("ofertix_rabbitmq.producer.{$name}", $producer);
         }
     }
@@ -76,8 +73,9 @@ class OfertixRabbitMqExtension extends Extension
         ;
 
         if (null !== $data['exchange']) {
-            $arguments = array_values($config['exchanges'][$data['exchange']]);
-            array_unshift($arguments, $data['exchange']);
+            $exchange = $data['exchange'];
+            $arguments = array_values($config['exchanges'][$exchange]);
+            array_unshift($arguments, $exchange);
             $service->addMethodCall('exchange_declare', $arguments);
         }
 
