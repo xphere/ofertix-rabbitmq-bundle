@@ -77,30 +77,4 @@ class ConnectionTest extends ExtensionAbstractTest
 
         $this->processConfig($configuration);
     }
-
-    public function testChannelGeneration()
-    {
-        $container = $this->processConfig(array(
-            'connections' => array(
-                'default_connection' => array(
-                    'host' => 'localhost',
-                    'test' => true,
-                ),
-            ),
-            'exchanges' => array('default_exchange' => true, ),
-            'producers' => array(
-                'default_producer' => array(
-                    'connection' => 'default_connection',
-                    'channel' => '2576',
-                    'exchange' => 'default_exchange',
-                    'parameters' => array(
-                        'delivery_mode' => 'persistent',
-                    ),
-                    'headers' => array(
-                        'x-parameters' => true,
-                    ),
-                ),
-            ),
-        ));
-    }
 }
