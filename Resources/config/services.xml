@@ -9,11 +9,13 @@
         <parameter key="ofertix_rabbitmq.lazy_connection.class">PhpAmqpLib\Connection\AMQPLazyConnection</parameter>
         <parameter key="ofertix_rabbitmq.channel.class">PhpAmqpLib\Channel\AMQPChannel</parameter>
         <parameter key="ofertix_rabbitmq.producer.class">Ofertix\RabbitMqBundle\Producer\Producer</parameter>
+        <parameter key="ofertix_rabbitmq.consumer.class">Ofertix\RabbitMqBundle\Consumer\Consumer</parameter>
     </parameters>
 
     <services>
         <service id="ofertix_rabbitmq.abstract_connection" class="%ofertix_rabbitmq.connection.class%" abstract="true" />
         <service id="ofertix_rabbitmq.abstract_channel" class="%ofertix_rabbitmq.channel.class%" factory-service="ofertix_rabbitmq.abstract_connection" factory-method="channel" abstract="true" />
         <service id="ofertix_rabbitmq.abstract_producer" class="%ofertix_rabbitmq.producer.class%" abstract="true" />
+        <service id="ofertix_rabbitmq.abstract_consumer" class="%ofertix_rabbitmq.consumer.class%" abstract="true" />
     </services>
 </container>

@@ -2,6 +2,7 @@
 
 namespace Ofertix\RabbitMqBundle\DependencyInjection;
 
+use Ofertix\RabbitMqBundle\Consumer\Consumer;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\DefinitionDecorator;
@@ -23,8 +24,11 @@ class OfertixRabbitMqExtension extends Extension
         $loader = new Loader\XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.xml');
 
-        $this->setupConnections($config, $container);
-        $this->setupProducers($config, $container);
+        $this
+            ->setupConnections($config, $container)
+            ->setupProducers($config, $container)
+            ->setupConsumers($config, $container)
+        ;
     }
 
     public function getAlias()
@@ -47,6 +51,8 @@ class OfertixRabbitMqExtension extends Extension
             ;
             $container->setDefinition("ofertix_rabbitmq.connection.{$name}", $connection);
         }
+
+        return $this;
     }
 
     protected function setupProducers(array $config, ContainerBuilder $container)
@@ -57,6 +63,32 @@ class OfertixRabbitMqExtension extends Extension
             $producer->setArguments(array($channel, $args['exchange'], $args['routing_key'], $args['mandatory'], $args['immediate'], $args['ticket'], $args['parameters'], $args['headers'], ));
             $container->setDefinition("ofertix_rabbitmq.producer.{$name}", $producer);
         }
+
+        return $this;
+    }
+
+    protected function setupConsumers(array $config, ContainerBuilder $container)
+    {
+        foreach ($config['consumers'] as $name => $args) {
+            $channel = $this->getChannel($args, $config, $container);
+            $producer = new DefinitionDecorator('ofertix_rabbitmq.abstract_consumer');
+            $producer->setArguments(array($channel, $args['queue'], $args['consumer_tag'], null));
+            if (isset($args['qos'])) {
+                $producer->addMethodCall('setQos', array($args['qos']['prefetch_size'], $args['qos']['prefetch_count']));
+            }
+            if (isset($args['flags'])) {
+                $flags =
+                    (isset($args['flags']['no_local'])  && $args['flags']['no_local']  ? Consumer::FLAG_NO_LOCAL  : 0) +
+                    (isset($args['flags']['no_ack'])    && $args['flags']['no_ack']    ? Consumer::FLAG_NO_ACK    : 0) +
+                    (isset($args['flags']['exclusive']) && $args['flags']['exclusive'] ? Consumer::FLAG_EXCLUSIVE : 0) +
+                    (isset($args['flags']['nowait'])    && $args['flags']['nowait']    ? Consumer::FLAG_NOWAIT    : 0)
+                ;
+                $producer->addMethodCall('setFlags', array($flags));
+            }
+            $container->setDefinition("ofertix_rabbitmq.consumer.{$name}", $producer);
+        }
+
+        return $this;
     }
 
     protected function getChannel(array $data, array $config, ContainerBuilder $container)
@@ -77,6 +109,13 @@ class OfertixRabbitMqExtension extends Extension
             $arguments = array_values($config['exchanges'][$exchange]);
             array_unshift($arguments, $exchange);
             $service->addMethodCall('exchange_declare', $arguments);
+        }
+
+        if (isset($data['queue'])) {
+            $queue = $data['queue'];
+            $arguments = array_values($config['queues'][$queue]);
+            array_unshift($arguments, $queue);
+            $service->addMethodCall('queue_declare', $arguments);
         }
 
         $container->setDefinition($serviceName, $service);
