@@ -41,5 +41,7 @@ class Producer
         $properties = array_merge($properties, $this->properties);
         $message = new AMQPMessage($message, $properties);
         $this->channel->basic_publish($message, $this->exchange, $this->routing_key, $this->mandatory, $this->immediate, $this->ticket);
+
+        return $this;
     }
 }

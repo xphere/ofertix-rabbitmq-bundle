@@ -26,13 +26,12 @@ class ProducerTest extends ExtensionAbstractTest
 
         $channel = $this->getMockBuilder('PhpAmqpLib\Channel\AMQPChannel')->disableOriginalConstructor()->getMock();
         $channel->expects($this->once())->method('exchange_declare');
-        $channel->expects($this->once())->method('basic_publish');
 
         $connection = $this->getMockBuilder('PhpAmqpLib\Connection\AMQPConnection')->disableOriginalConstructor()->getMock();
         $connection->expects($this->once())->method('channel')->with(2576)->will($this->returnValue($channel));
         $this->mockService('ofertix_rabbitmq.connection.default_connection', $connection);
 
         $container = $this->processConfig($configuration);
-        $container->get('ofertix_rabbitmq.producer.default_producer')->publish('message');
+        $container->get('ofertix_rabbitmq.producer.default_producer');
     }
 }
