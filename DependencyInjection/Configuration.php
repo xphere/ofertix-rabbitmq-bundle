@@ -3,7 +3,6 @@
 namespace Ofertix\RabbitMqBundle\DependencyInjection;
 
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
-use Symfony\Component\Config\Definition\Builder\IntegerNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
@@ -18,7 +17,7 @@ class Configuration implements ConfigurationInterface
 
     public function getConfigTreeBuilder()
     {
-        $treeBuilder = new TreeBuilder();
+        $treeBuilder = $this->getTreeBuilder();
         $rootNode = $treeBuilder->root($this->alias);
         $rootNode
             ->canBeDisabled()
@@ -65,9 +64,7 @@ class Configuration implements ConfigurationInterface
             ->end()
         ;
 
-        $treeBuilder = new TreeBuilder();
-        $node = $treeBuilder->root('connections');
-        $node
+        return $this->getTreeBuilder()->root('connections')
             ->fixXmlConfig('connection')
             ->useAttributeAsKey('name')
             ->addDefaultChildrenIfNoneSet('default')
@@ -106,15 +103,11 @@ class Configuration implements ConfigurationInterface
                 })
             ->end()
         ;
-
-        return $node;
     }
 
     protected function setupExchanges()
     {
-        $treeBuilder = new TreeBuilder();
-        $node = $treeBuilder->root('exchanges');
-        $node
+        return $this->getTreeBuilder()->root('exchanges')
             ->fixXmlConfig('exchange')
             ->useAttributeAsKey('name')
             ->prototype('array')
@@ -147,15 +140,11 @@ class Configuration implements ConfigurationInterface
                 ->end()
             ->end()
         ;
-
-        return $node;
     }
 
     protected function setupQueues()
     {
-        $treeBuilder = new TreeBuilder();
-        $node = $treeBuilder->root('queues');
-        $node
+        return $this->getTreeBuilder()->root('queues')
             ->fixXmlConfig('queue')
             ->useAttributeAsKey('name')
             ->prototype('array')
@@ -184,14 +173,11 @@ class Configuration implements ConfigurationInterface
                 ->end()
             ->end()
         ;
-
-        return $node;
     }
 
     protected function setupChannel()
     {
-        $node = new IntegerNodeDefinition('channel');
-        $node
+        return $this->getTreeBuilder()->root('channel', 'integer')
             ->beforeNormalization()
                 ->ifTrue(function($v) {
                     return is_string($v) && is_numeric($v);
@@ -201,9 +187,7 @@ class Configuration implements ConfigurationInterface
                 })
             ->end()
             ->defaultValue('')
-        ->end();
-
-        return $node;
+        ;
     }
 
     protected function setupProducers(ArrayNodeDefinition $rootNode)
@@ -221,11 +205,9 @@ class Configuration implements ConfigurationInterface
                     return $value;
                 })
             ->end()
-        ;
+        ->end();
 
-        $treeBuilder = new TreeBuilder();
-        $node = $treeBuilder->root('producers');
-        $node
+        return $this->getTreeBuilder()->root('producers')
             ->fixXmlConfig('producer')
             ->useAttributeAsKey('name')
             ->prototype('array')
@@ -242,16 +224,12 @@ class Configuration implements ConfigurationInterface
                     ->arrayNode('headers')->prototype('scalar')->end()
                 ->end()
             ->end()
-        ;
-
-        return $node;
+        ->end();
     }
 
     protected function setupMessageParameters()
     {
-        $treeBuilder = new TreeBuilder();
-        $node = $treeBuilder->root('parameters');
-        $node
+        return $this->getTreeBuilder()->root('parameters')
             ->addDefaultsIfNotSet()
             ->children()
                 ->scalarNode('content_type')
@@ -290,7 +268,10 @@ class Configuration implements ConfigurationInterface
                 ->end()
             ->end()
         ;
+    }
 
-        return $node;
+    protected function getTreeBuilder()
+    {
+        return new TreeBuilder();
     }
 }
