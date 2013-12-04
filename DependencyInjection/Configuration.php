@@ -32,11 +32,9 @@ class Configuration implements ConfigurationInterface
         return $treeBuilder;
     }
 
-    protected function setupConnections(ArrayNodeDefinition $node)
+    protected function setupConnections(ArrayNodeDefinition $rootNode)
     {
-        $node
-            ->addDefaultsIfNotSet()
-
+        $rootNode
             ->children()
                 ->scalarNode('default_connection')
                     ->defaultNull()
@@ -67,11 +65,6 @@ class Configuration implements ConfigurationInterface
             ->end()
         ;
 
-        return $this->getConnectionsNode();
-    }
-
-    protected function getConnectionsNode()
-    {
         $treeBuilder = new TreeBuilder();
         $node = $treeBuilder->root('connections');
         $node
@@ -106,7 +99,7 @@ class Configuration implements ConfigurationInterface
                 ->always()
                 ->then(function($value) {
                     if (empty($value)) {
-                        $value = array('default' => array(), );
+                        $value = array('default' => array());
                     }
 
                     return $value;
@@ -151,6 +144,8 @@ class Configuration implements ConfigurationInterface
                     ->scalarNode('ticket')
                         ->defaultNull()
                     ->end()
+                ->end()
+            ->end()
         ;
 
         return $node;
@@ -186,6 +181,8 @@ class Configuration implements ConfigurationInterface
                     ->scalarNode('ticket')
                         ->defaultNull()
                     ->end()
+                ->end()
+            ->end()
         ;
 
         return $node;
@@ -194,7 +191,6 @@ class Configuration implements ConfigurationInterface
     protected function setupChannel()
     {
         $node = new IntegerNodeDefinition('channel');
-
         $node
             ->beforeNormalization()
                 ->ifTrue(function($v) {
@@ -266,7 +262,7 @@ class Configuration implements ConfigurationInterface
                 ->end()
                 ->enumNode('delivery_mode')
                     ->defaultValue('persistent')
-                    ->values(array(1 => 'non-persistent', 2 => 'persistent', ))
+                    ->values(array(1 => 'non-persistent', 2 => 'persistent'))
                     ->validate()
                         ->always(function($value) {
                             return $value === 'persistent' ? 2 : 1;
