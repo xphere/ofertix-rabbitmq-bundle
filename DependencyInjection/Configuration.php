@@ -214,7 +214,7 @@ class Configuration implements ConfigurationInterface
                 ->addDefaultsIfNotSet()
                 ->children()
                     ->scalarNode('connection')->defaultNull()->end()
-                    ->scalarNode('exchange')->defaultNull()->end()
+                    ->scalarNode('exchange')->isRequired()->end()
                     ->scalarNode('routing_key')->defaultValue('')->end()
                     ->booleanNode('mandatory')->defaultFalse()->end()
                     ->booleanNode('immediate')->defaultFalse()->end()

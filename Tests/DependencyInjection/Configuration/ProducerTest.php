@@ -23,13 +23,15 @@ class ProducerTest extends ConfigurationAbstractTest
             'default producer' => array(
                 array(
                     'producers' => array(
-                        'producer_name' => array(),
+                        'producer_name' => array(
+                            'exchange' => 'exchange_name',
+                        ),
                     )
                 ),
                 array(
                     'producer_name' => array(
                         'connection' => 'default',
-                        'exchange' => null,
+                        'exchange' => 'exchange_name',
                         'routing_key' => '',
                         'mandatory' => false,
                         'immediate' => false,
