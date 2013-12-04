@@ -26,6 +26,7 @@ class Configuration implements ConfigurationInterface
             ->append($this->setupExchanges())
             ->append($this->setupQueues())
             ->append($this->setupProducers($rootNode))
+            ->append($this->setupConsumers($rootNode))
         ;
 
         return $treeBuilder;
@@ -149,20 +150,7 @@ class Configuration implements ConfigurationInterface
 
     protected function setupProducers(ArrayNodeDefinition $rootNode)
     {
-        $rootNode
-            ->validate()
-                ->always(function($value) {
-                    foreach ($value['producers'] as &$producer) {
-                        if ($producer['connection'] === null) {
-                            $producer['connection'] = $value['default_connection'];
-                        }
-                        unset($producer);
-                    }
-
-                    return $value;
-                })
-            ->end()
-        ->end();
+        $this->setDefaultConnection($rootNode, 'producers');
 
         return $this->getTreeNode('producers')
             ->fixXmlConfig('producer')
@@ -213,6 +201,45 @@ class Configuration implements ConfigurationInterface
                 ->scalarNode('app_id')->defaultNull()->end()
             ->end()
         ;
+    }
+
+    protected function setupConsumers(ArrayNodeDefinition $rootNode)
+    {
+        $this->setDefaultConnection($rootNode, 'consumers');
+
+        return $this->getTreeNode('consumers')
+            ->fixXmlConfig('consumer')
+            ->useAttributeAsKey('name')
+            ->prototype('array')
+                ->addDefaultsIfNotSet()
+                ->children()
+                    ->scalarNode('connection')->defaultNull()->end()
+                    ->scalarNode('exchange')->isRequired()->end()
+                    ->scalarNode('queue')->isRequired()->end()
+                    ->append($this->setupChannel())
+                ->end()
+            ->end()
+        ;
+    }
+
+    protected function setDefaultConnection(ArrayNodeDefinition $node, $key)
+    {
+        $node
+            ->validate()
+                ->always(function($value) use ($key) {
+                    foreach ($value[$key] as &$service) {
+                        if (null === $service['connection']) {
+                            $service['connection'] = $value['default_connection'];
+                        }
+                        unset($service);
+                    }
+
+                    return $value;
+                })
+            ->end()
+        ->end();
+
+        return $this;
     }
 
     protected function getTreeNode($name, $type = 'array')
