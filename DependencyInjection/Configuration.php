@@ -26,7 +26,7 @@ class Configuration implements ConfigurationInterface
             ->append($this->setupConnections($rootNode))
             ->append($this->setupExchanges())
             ->append($this->setupQueues())
-            ->append($this->setupProducers())
+            ->append($this->setupProducers($rootNode))
         ;
 
         return $treeBuilder;
@@ -210,8 +210,23 @@ class Configuration implements ConfigurationInterface
         return $node;
     }
 
-    protected function setupProducers()
+    protected function setupProducers(ArrayNodeDefinition $rootNode)
     {
+        $rootNode
+            ->validate()
+                ->always(function($value) {
+                    foreach ($value['producers'] as &$producer) {
+                        if ($producer['connection'] === null) {
+                            $producer['connection'] = $value['default_connection'];
+                        }
+                        unset($producer);
+                    }
+
+                    return $value;
+                })
+            ->end()
+        ;
+
         $treeBuilder = new TreeBuilder();
         $node = $treeBuilder->root('producers');
         $node
@@ -230,6 +245,7 @@ class Configuration implements ConfigurationInterface
                     ->append($this->setupMessageParameters())
                     ->arrayNode('headers')->prototype('scalar')->end()
                 ->end()
+            ->end()
         ;
 
         return $node;
