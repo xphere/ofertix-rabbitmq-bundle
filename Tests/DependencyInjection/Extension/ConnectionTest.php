@@ -10,7 +10,7 @@ class ConnectionTest extends ExtensionAbstractTest
         $definition = $container->findDefinition('ofertix_rabbitmq.connection.default');
 
         $this->assertSame($container->findDefinition('ofertix_rabbitmq'), $definition);
-        $this->assertEquals('PhpAmqpLib\Connection\AMQPConnection', $definition->getClass());
+        $this->assertEquals('PhpAmqpLib\Connection\AMQPLazyConnection', $definition->getClass());
         $this->assertContains('localhost', $definition->getArguments());
     }
 
@@ -23,7 +23,7 @@ class ConnectionTest extends ExtensionAbstractTest
         $definition = $container->findDefinition('ofertix_rabbitmq.connection.default');
 
         $this->assertSame($container->findDefinition('ofertix_rabbitmq'), $definition);
-        $this->assertEquals('PhpAmqpLib\Connection\AMQPConnection', $definition->getClass());
+        $this->assertEquals('PhpAmqpLib\Connection\AMQPLazyConnection', $definition->getClass());
         $this->assertContains('localhost', $definition->getArguments());
     }
 
@@ -41,7 +41,7 @@ class ConnectionTest extends ExtensionAbstractTest
         $definition = $container->findDefinition('ofertix_rabbitmq.connection.my_connection');
 
         $this->assertSame($container->findDefinition('ofertix_rabbitmq'), $definition);
-        $this->assertEquals('PhpAmqpLib\Connection\AMQPConnection', $definition->getClass());
+        $this->assertEquals('PhpAmqpLib\Connection\AMQPLazyConnection', $definition->getClass());
         $this->assertContains('example.org', $definition->getArguments());
     }
 
@@ -60,7 +60,7 @@ class ConnectionTest extends ExtensionAbstractTest
         $container = $this->processConfig($configuration);
         $definition = $container->findDefinition('ofertix_rabbitmq');
 
-        $this->assertEquals('PhpAmqpLib\Connection\AMQPConnection', $definition->getClass());
+        $this->assertEquals('PhpAmqpLib\Connection\AMQPLazyConnection', $definition->getClass());
         $this->assertContains('example.org', $definition->getArguments());
     }
 

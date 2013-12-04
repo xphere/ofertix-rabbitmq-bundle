@@ -5,6 +5,7 @@ namespace Ofertix\RabbitMqBundle\DependencyInjection;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\DefinitionDecorator;
+use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 use Symfony\Component\DependencyInjection\Loader;
 
@@ -23,8 +24,7 @@ class OfertixRabbitMqExtension extends Extension
         $loader->load('services.xml');
 
         $this->setupConnections($config, $container);
-        $this->setupExchanges($config, $container);
-        $this->setupQueues($config, $container);
+        $this->setupProducers($config, $container);
     }
 
     public function getAlias()
@@ -37,26 +37,50 @@ class OfertixRabbitMqExtension extends Extension
         $container->setAlias('ofertix_rabbitmq', "ofertix_rabbitmq.connection.{$config['default_connection']}");
         foreach ($config['connections'] as $name => $data) {
             $connection = new DefinitionDecorator('ofertix_rabbitmq.abstract_connection');
-            $connection->setArguments(array($data['host'], $data['port'], $data['user'], $data['password'], $data['vhost']));
+            if ($data['lazy'] === true) {
+                $connection->setClass($container->getParameter('ofertix_rabbitmq.lazy_connection.class'));
+            }
+            $connection
+                ->setArguments(array(
+                    $data['host'], $data['port'], $data['user'], $data['password'], $data['vhost']
+                ))
+            ;
             $container->setDefinition("ofertix_rabbitmq.connection.{$name}", $connection);
         }
     }
 
-    protected function setupExchanges(array $config, ContainerBuilder $container)
+    protected function setupProducers(array $config, ContainerBuilder $container)
     {
-        $definition = $container->findDefinition('ofertix_rabbitmq.exchange_manager');
-        foreach ($config['exchanges'] as $name => $arguments) {
-            array_unshift($arguments, $name);
-            $definition->addMethodCall('setExchange', $arguments);
+        foreach ($config['producers'] as $name => $args) {
+            $channel = $this->getChannel($args, $config, $container);
+            $producer = new DefinitionDecorator('ofertix_rabbitmq.abstract_producer');
+            $producer->setArguments(array($channel, $args['exchange'], $args['routing_key'], $args['mandatory'], $args['immediate'], $args['ticket'], $args['parameters'], $args['headers'], ));
+            $container->setDefinition("ofertix_rabbitmq.producer.{$name}", $producer);
         }
     }
 
-    protected function setupQueues(array $config, ContainerBuilder $container)
+    protected function getChannel(array $data, array $config, ContainerBuilder $container)
     {
-        $definition = $container->findDefinition('ofertix_rabbitmq.queue_manager');
-        foreach ($config['queues'] as $name => $arguments) {
-            array_unshift($arguments, $name);
-            $definition->addMethodCall('setQueue', $arguments);
+        $connection = null !== $data['connection'] ? "ofertix_rabbitmq.connection.{$data['connection']}" : 'ofertix_rabbitmq';
+        $channelName = null !== $data['channel'] ? $data['channel'] : '';
+        $serviceName = 'ofertix_rabbitmq.channel.' . md5("{$connection}/{$channelName}/" . serialize($data));
+
+        $service = new DefinitionDecorator('ofertix_rabbitmq.abstract_channel');
+        $service
+            ->setFactoryService($connection)
+            ->setArguments(array($channelName, ))
+            ->setAbstract(false)
+        ;
+
+        if (null !== $data['exchange']) {
+            $exchange = $data['exchange'];
+            $arguments = array_values($config['exchanges'][$exchange]);
+            array_unshift($arguments, $exchange);
+            $service->addMethodCall('exchange_declare', $arguments);
         }
+
+        $container->setDefinition($serviceName, $service);
+
+        return new Reference($serviceName);
     }
 }

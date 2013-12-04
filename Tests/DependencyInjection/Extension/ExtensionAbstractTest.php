@@ -7,6 +7,8 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 abstract class ExtensionAbstractTest extends \PHPUnit_Framework_TestCase
 {
+    private $mockedServices = array();
+
     protected function processConfig(array $config)
     {
         $extension = $this->getExtension();
@@ -22,8 +24,20 @@ abstract class ExtensionAbstractTest extends \PHPUnit_Framework_TestCase
         return new OfertixRabbitMqExtension();
     }
 
+    protected function mockService($name, $service)
+    {
+        $this->mockedServices[$name] = $service;
+
+        return $this;
+    }
+
     protected function getContainer()
     {
-        return new ContainerBuilder();
+        $container = new ContainerBuilder();
+        foreach ($this->mockedServices as $name => $service) {
+            $container->set($name, $service);
+        }
+
+        return $container;
     }
 }
