@@ -35,9 +35,7 @@ class Configuration implements ConfigurationInterface
     {
         $rootNode
             ->children()
-                ->scalarNode('default_connection')
-                    ->defaultNull()
-                ->end()
+                ->scalarNode('default_connection')->defaultNull()->end()
             ->end()
 
             ->validate()
@@ -64,37 +62,24 @@ class Configuration implements ConfigurationInterface
             ->end()
         ;
 
-        return $this->getTreeBuilder()->root('connections')
+        return $this->getTreeNode('connections')
             ->fixXmlConfig('connection')
             ->useAttributeAsKey('name')
             ->addDefaultChildrenIfNoneSet('default')
 
             ->prototype('array')
                 ->children()
-                    ->scalarNode('host')
-                        ->defaultValue('localhost')
-                    ->end()
-                    ->integerNode('port')
-                        ->defaultValue(5672)
-                    ->end()
-                    ->scalarNode('user')
-                        ->defaultValue('guest')
-                    ->end()
-                    ->scalarNode('password')
-                        ->defaultValue('guest')
-                    ->end()
-                    ->scalarNode('vhost')
-                        ->defaultValue('/')
-                    ->end()
-                    ->booleanNode('lazy')
-                        ->defaultTrue()
-                    ->end()
+                    ->scalarNode('host')->defaultValue('localhost')->end()
+                    ->integerNode('port')->defaultValue(5672)->end()
+                    ->scalarNode('user')->defaultValue('guest')->end()
+                    ->scalarNode('password')->defaultValue('guest')->end()
+                    ->scalarNode('vhost')->defaultValue('/')->end()
+                    ->booleanNode('lazy')->defaultTrue()->end()
                 ->end()
             ->end()
 
             ->beforeNormalization()
-                ->always()
-                ->then(function($value) {
+                ->always(function($value) {
                     if (empty($value)) {
                         $value = array('default' => array());
                     }
@@ -107,7 +92,7 @@ class Configuration implements ConfigurationInterface
 
     protected function setupExchanges()
     {
-        return $this->getTreeBuilder()->root('exchanges')
+        return $this->getTreeNode('exchanges')
             ->fixXmlConfig('exchange')
             ->useAttributeAsKey('name')
             ->prototype('array')
@@ -116,27 +101,13 @@ class Configuration implements ConfigurationInterface
                         ->defaultValue('direct')
                         ->values(array('direct', 'fanout', 'topic', 'headers', ))
                     ->end()
-                    ->booleanNode('passive')
-                        ->defaultValue(false)
-                    ->end()
-                    ->booleanNode('durable')
-                        ->defaultValue(false)
-                    ->end()
-                    ->booleanNode('auto_delete')
-                        ->defaultValue(true)
-                    ->end()
-                    ->booleanNode('internal')
-                        ->defaultValue(false)
-                    ->end()
-                    ->booleanNode('nowait')
-                        ->defaultValue(false)
-                    ->end()
-                    ->variableNode('arguments')
-                        ->defaultNull()
-                    ->end()
-                    ->scalarNode('ticket')
-                        ->defaultNull()
-                    ->end()
+                    ->booleanNode('passive')->defaultValue(false)->end()
+                    ->booleanNode('durable')->defaultValue(false)->end()
+                    ->booleanNode('auto_delete')->defaultValue(true)->end()
+                    ->booleanNode('internal')->defaultValue(false)->end()
+                    ->booleanNode('nowait')->defaultValue(false)->end()
+                    ->variableNode('arguments')->defaultNull()->end()
+                    ->scalarNode('ticket')->defaultNull()->end()
                 ->end()
             ->end()
         ;
@@ -144,32 +115,18 @@ class Configuration implements ConfigurationInterface
 
     protected function setupQueues()
     {
-        return $this->getTreeBuilder()->root('queues')
+        return $this->getTreeNode('queues')
             ->fixXmlConfig('queue')
             ->useAttributeAsKey('name')
             ->prototype('array')
                 ->children()
-                    ->booleanNode('passive')
-                        ->defaultValue(false)
-                    ->end()
-                    ->booleanNode('durable')
-                        ->defaultValue(false)
-                    ->end()
-                    ->booleanNode('exclusive')
-                        ->defaultValue(false)
-                    ->end()
-                    ->booleanNode('auto_delete')
-                        ->defaultValue(true)
-                    ->end()
-                    ->booleanNode('nowait')
-                        ->defaultValue(false)
-                    ->end()
-                    ->variableNode('arguments')
-                        ->defaultNull()
-                    ->end()
-                    ->scalarNode('ticket')
-                        ->defaultNull()
-                    ->end()
+                    ->booleanNode('passive')->defaultValue(false)->end()
+                    ->booleanNode('durable')->defaultValue(false)->end()
+                    ->booleanNode('exclusive')->defaultValue(false)->end()
+                    ->booleanNode('auto_delete')->defaultValue(true)->end()
+                    ->booleanNode('nowait')->defaultValue(false)->end()
+                    ->variableNode('arguments')->defaultNull()->end()
+                    ->scalarNode('ticket')->defaultNull()->end()
                 ->end()
             ->end()
         ;
@@ -177,7 +134,7 @@ class Configuration implements ConfigurationInterface
 
     protected function setupChannel()
     {
-        return $this->getTreeBuilder()->root('channel', 'integer')
+        return $this->getTreeNode('channel', 'integer')
             ->beforeNormalization()
                 ->ifTrue(function($v) {
                     return is_string($v) && is_numeric($v);
@@ -207,7 +164,7 @@ class Configuration implements ConfigurationInterface
             ->end()
         ->end();
 
-        return $this->getTreeBuilder()->root('producers')
+        return $this->getTreeNode('producers')
             ->fixXmlConfig('producer')
             ->useAttributeAsKey('name')
             ->prototype('array')
@@ -229,15 +186,11 @@ class Configuration implements ConfigurationInterface
 
     protected function setupMessageParameters()
     {
-        return $this->getTreeBuilder()->root('parameters')
+        return $this->getTreeNode('parameters')
             ->addDefaultsIfNotSet()
             ->children()
-                ->scalarNode('content_type')
-                    ->defaultValue('text/plain')
-                ->end()
-                ->scalarNode('content_encoding')
-                    ->defaultValue('UTF-8')
-                ->end()
+                ->scalarNode('content_type')->defaultValue('text/plain')->end()
+                ->scalarNode('content_encoding')->defaultValue('UTF-8')->end()
                 ->enumNode('delivery_mode')
                     ->defaultValue('persistent')
                     ->values(array(1 => 'non-persistent', 2 => 'persistent'))
@@ -254,20 +207,17 @@ class Configuration implements ConfigurationInterface
                         ->thenInvalid('Message priority must be in range [0..9]')
                     ->end()
                 ->end()
-                ->integerNode('expiration')
-                    ->defaultNull()
-                ->end()
-                ->scalarNode('type')
-                    ->defaultNull()
-                ->end()
-                ->scalarNode('user_id')
-                    ->defaultNull()
-                ->end()
-                ->scalarNode('app_id')
-                    ->defaultNull()
-                ->end()
+                ->integerNode('expiration')->defaultNull()->end()
+                ->scalarNode('type')->defaultNull()->end()
+                ->scalarNode('user_id')->defaultNull()->end()
+                ->scalarNode('app_id')->defaultNull()->end()
             ->end()
         ;
+    }
+
+    protected function getTreeNode($name, $type = 'array')
+    {
+        return $this->getTreeBuilder()->root($name, $type);
     }
 
     protected function getTreeBuilder()
