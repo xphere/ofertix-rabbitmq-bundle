@@ -15,20 +15,22 @@ class Consumer
     protected $channel;
     protected $queue;
     protected $consumer_tag;
-    protected $callback;
     protected $no_local;
     protected $no_ack;
     protected $exclusive;
     protected $nowait;
+    protected $callback;
+    protected $ticket;
     protected $prefetch_size = null;
     protected $prefetch_count = 1;
 
-    public function __construct(AMQPChannel $channel, $queue = '', $consumer_tag = '', $callback = null)
+    public function __construct(AMQPChannel $channel, $queue = '', $consumer_tag = '', $callback = null, $ticket = null)
     {
         $this->channel = $channel;
         $this->queue = $queue;
         $this->consumer_tag = $consumer_tag;
         $this->callback = $callback;
+        $this->ticket = $ticket;
     }
 
     public function setQos($prefetch_size, $prefetch_count)
@@ -52,7 +54,7 @@ class Consumer
     public function consume()
     {
         $this->channel->basic_qos($this->prefetch_size, $this->prefetch_count, null);
-        $this->channel->basic_consume($this->queue, $this->consumer_tag, $this->no_local, $this->no_ack, $this->exclusive, $this->nowait, $this->callback);
+        $this->channel->basic_consume($this->queue, $this->consumer_tag, $this->no_local, $this->no_ack, $this->exclusive, $this->nowait, $this->callback, $this->ticket);
 
         return $this;
     }

@@ -72,7 +72,7 @@ class OfertixRabbitMqExtension extends Extension
             ->setAbstract(false)
         ;
 
-        if (null !== $data['exchange']) {
+        if (isset($data['exchange'])) {
             $exchange = $data['exchange'];
             $arguments = array_values($config['exchanges'][$exchange]);
             array_unshift($arguments, $exchange);
