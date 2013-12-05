@@ -3,7 +3,6 @@
 namespace Ofertix\RabbitMqBundle\DependencyInjection;
 
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
-use Symfony\Component\Config\Definition\Builder\IntegerNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
@@ -18,7 +17,7 @@ class Configuration implements ConfigurationInterface
 
     public function getConfigTreeBuilder()
     {
-        $treeBuilder = new TreeBuilder();
+        $treeBuilder = $this->getTreeBuilder();
         $rootNode = $treeBuilder->root($this->alias);
         $rootNode
             ->canBeDisabled()
@@ -26,21 +25,18 @@ class Configuration implements ConfigurationInterface
             ->append($this->setupConnections($rootNode))
             ->append($this->setupExchanges())
             ->append($this->setupQueues())
-            ->append($this->setupProducers())
+            ->append($this->setupProducers($rootNode))
+            ->append($this->setupConsumers($rootNode))
         ;
 
         return $treeBuilder;
     }
 
-    protected function setupConnections(ArrayNodeDefinition $node)
+    protected function setupConnections(ArrayNodeDefinition $rootNode)
     {
-        $node
-            ->addDefaultsIfNotSet()
-
+        $rootNode
             ->children()
-                ->scalarNode('default_connection')
-                    ->defaultNull()
-                ->end()
+                ->scalarNode('default_connection')->defaultNull()->end()
             ->end()
 
             ->validate()
@@ -67,61 +63,37 @@ class Configuration implements ConfigurationInterface
             ->end()
         ;
 
-        return $this->getConnectionsNode();
-    }
-
-    protected function getConnectionsNode()
-    {
-        $treeBuilder = new TreeBuilder();
-        $node = $treeBuilder->root('connections');
-        $node
+        return $this->getTreeNode('connections')
             ->fixXmlConfig('connection')
             ->useAttributeAsKey('name')
             ->addDefaultChildrenIfNoneSet('default')
 
             ->prototype('array')
                 ->children()
-                    ->scalarNode('host')
-                        ->defaultValue('localhost')
-                    ->end()
-                    ->integerNode('port')
-                        ->defaultValue(5672)
-                    ->end()
-                    ->scalarNode('user')
-                        ->defaultValue('guest')
-                    ->end()
-                    ->scalarNode('password')
-                        ->defaultValue('guest')
-                    ->end()
-                    ->scalarNode('vhost')
-                        ->defaultValue('/')
-                    ->end()
-                    ->booleanNode('lazy')
-                        ->defaultTrue()
-                    ->end()
+                    ->scalarNode('host')->defaultValue('localhost')->end()
+                    ->integerNode('port')->defaultValue(5672)->end()
+                    ->scalarNode('user')->defaultValue('guest')->end()
+                    ->scalarNode('password')->defaultValue('guest')->end()
+                    ->scalarNode('vhost')->defaultValue('/')->end()
+                    ->booleanNode('lazy')->defaultTrue()->end()
                 ->end()
             ->end()
 
             ->beforeNormalization()
-                ->always()
-                ->then(function($value) {
+                ->always(function($value) {
                     if (empty($value)) {
-                        $value = array('default' => array(), );
+                        $value = array('default' => array());
                     }
 
                     return $value;
                 })
             ->end()
         ;
-
-        return $node;
     }
 
     protected function setupExchanges()
     {
-        $treeBuilder = new TreeBuilder();
-        $node = $treeBuilder->root('exchanges');
-        $node
+        return $this->getTreeNode('exchanges')
             ->fixXmlConfig('exchange')
             ->useAttributeAsKey('name')
             ->prototype('array')
@@ -130,72 +102,40 @@ class Configuration implements ConfigurationInterface
                         ->defaultValue('direct')
                         ->values(array('direct', 'fanout', 'topic', 'headers', ))
                     ->end()
-                    ->booleanNode('passive')
-                        ->defaultValue(false)
-                    ->end()
-                    ->booleanNode('durable')
-                        ->defaultValue(false)
-                    ->end()
-                    ->booleanNode('auto_delete')
-                        ->defaultValue(true)
-                    ->end()
-                    ->booleanNode('internal')
-                        ->defaultValue(false)
-                    ->end()
-                    ->booleanNode('nowait')
-                        ->defaultValue(false)
-                    ->end()
-                    ->variableNode('arguments')
-                        ->defaultNull()
-                    ->end()
-                    ->scalarNode('ticket')
-                        ->defaultNull()
-                    ->end()
+                    ->booleanNode('passive')->defaultValue(false)->end()
+                    ->booleanNode('durable')->defaultValue(false)->end()
+                    ->booleanNode('auto_delete')->defaultValue(true)->end()
+                    ->booleanNode('internal')->defaultValue(false)->end()
+                    ->booleanNode('nowait')->defaultValue(false)->end()
+                    ->variableNode('arguments')->defaultNull()->end()
+                    ->scalarNode('ticket')->defaultNull()->end()
+                ->end()
+            ->end()
         ;
-
-        return $node;
     }
 
     protected function setupQueues()
     {
-        $treeBuilder = new TreeBuilder();
-        $node = $treeBuilder->root('queues');
-        $node
+        return $this->getTreeNode('queues')
             ->fixXmlConfig('queue')
             ->useAttributeAsKey('name')
             ->prototype('array')
                 ->children()
-                    ->booleanNode('passive')
-                        ->defaultValue(false)
-                    ->end()
-                    ->booleanNode('durable')
-                        ->defaultValue(false)
-                    ->end()
-                    ->booleanNode('exclusive')
-                        ->defaultValue(false)
-                    ->end()
-                    ->booleanNode('auto_delete')
-                        ->defaultValue(true)
-                    ->end()
-                    ->booleanNode('nowait')
-                        ->defaultValue(false)
-                    ->end()
-                    ->variableNode('arguments')
-                        ->defaultNull()
-                    ->end()
-                    ->scalarNode('ticket')
-                        ->defaultNull()
-                    ->end()
+                    ->booleanNode('passive')->defaultValue(false)->end()
+                    ->booleanNode('durable')->defaultValue(false)->end()
+                    ->booleanNode('exclusive')->defaultValue(false)->end()
+                    ->booleanNode('auto_delete')->defaultValue(true)->end()
+                    ->booleanNode('nowait')->defaultValue(false)->end()
+                    ->variableNode('arguments')->defaultNull()->end()
+                    ->scalarNode('ticket')->defaultNull()->end()
+                ->end()
+            ->end()
         ;
-
-        return $node;
     }
 
     protected function setupChannel()
     {
-        $node = new IntegerNodeDefinition('channel');
-
-        $node
+        return $this->getTreeNode('channel', 'integer')
             ->beforeNormalization()
                 ->ifTrue(function($v) {
                     return is_string($v) && is_numeric($v);
@@ -205,23 +145,21 @@ class Configuration implements ConfigurationInterface
                 })
             ->end()
             ->defaultValue('')
-        ->end();
-
-        return $node;
+        ;
     }
 
-    protected function setupProducers()
+    protected function setupProducers(ArrayNodeDefinition $rootNode)
     {
-        $treeBuilder = new TreeBuilder();
-        $node = $treeBuilder->root('producers');
-        $node
+        $this->setDefaultConnection($rootNode, 'producers');
+
+        return $this->getTreeNode('producers')
             ->fixXmlConfig('producer')
             ->useAttributeAsKey('name')
             ->prototype('array')
                 ->addDefaultsIfNotSet()
                 ->children()
                     ->scalarNode('connection')->defaultNull()->end()
-                    ->scalarNode('exchange')->defaultNull()->end()
+                    ->scalarNode('exchange')->isRequired()->end()
                     ->scalarNode('routing_key')->defaultValue('')->end()
                     ->booleanNode('mandatory')->defaultFalse()->end()
                     ->booleanNode('immediate')->defaultFalse()->end()
@@ -230,27 +168,20 @@ class Configuration implements ConfigurationInterface
                     ->append($this->setupMessageParameters())
                     ->arrayNode('headers')->prototype('scalar')->end()
                 ->end()
-        ;
-
-        return $node;
+            ->end()
+        ->end();
     }
 
     protected function setupMessageParameters()
     {
-        $treeBuilder = new TreeBuilder();
-        $node = $treeBuilder->root('parameters');
-        $node
+        return $this->getTreeNode('parameters')
             ->addDefaultsIfNotSet()
             ->children()
-                ->scalarNode('content_type')
-                    ->defaultValue('text/plain')
-                ->end()
-                ->scalarNode('content_encoding')
-                    ->defaultValue('UTF-8')
-                ->end()
+                ->scalarNode('content_type')->defaultValue('text/plain')->end()
+                ->scalarNode('content_encoding')->defaultValue('UTF-8')->end()
                 ->enumNode('delivery_mode')
                     ->defaultValue('persistent')
-                    ->values(array(1 => 'non-persistent', 2 => 'persistent', ))
+                    ->values(array(1 => 'non-persistent', 2 => 'persistent'))
                     ->validate()
                         ->always(function($value) {
                             return $value === 'persistent' ? 2 : 1;
@@ -264,21 +195,75 @@ class Configuration implements ConfigurationInterface
                         ->thenInvalid('Message priority must be in range [0..9]')
                     ->end()
                 ->end()
-                ->integerNode('expiration')
-                    ->defaultNull()
-                ->end()
-                ->scalarNode('type')
-                    ->defaultNull()
-                ->end()
-                ->scalarNode('user_id')
-                    ->defaultNull()
-                ->end()
-                ->scalarNode('app_id')
-                    ->defaultNull()
+                ->integerNode('expiration')->defaultNull()->end()
+                ->scalarNode('type')->defaultNull()->end()
+                ->scalarNode('user_id')->defaultNull()->end()
+                ->scalarNode('app_id')->defaultNull()->end()
+            ->end()
+        ;
+    }
+
+    protected function setupConsumers(ArrayNodeDefinition $rootNode)
+    {
+        $this->setDefaultConnection($rootNode, 'consumers');
+
+        return $this->getTreeNode('consumers')
+            ->fixXmlConfig('consumer')
+            ->useAttributeAsKey('name')
+            ->prototype('array')
+                ->addDefaultsIfNotSet()
+                ->children()
+                    ->scalarNode('connection')->defaultNull()->end()
+                    ->scalarNode('exchange')->isRequired()->end()
+                    ->scalarNode('queue')->isRequired()->end()
+                    ->scalarNode('consumer_tag')->defaultValue('')->end()
+                    ->arrayNode('qos')
+                        ->children()
+                            ->integerNode('prefetch_size')->defaultNull()->end()
+                            ->integerNode('prefetch_count')->defaultValue(1)->end()
+                        ->end()
+                    ->end()
+                    ->arrayNode('flags')
+                        ->children()
+                            ->booleanNode('no_local')->defaultFalse()->end()
+                            ->booleanNode('no_ack')->defaultFalse()->end()
+                            ->booleanNode('exclusive')->defaultFalse()->end()
+                            ->booleanNode('nowait')->defaultFalse()->end()
+                        ->end()
+                    ->end()
+                    ->append($this->setupChannel())
                 ->end()
             ->end()
         ;
+    }
 
-        return $node;
+    protected function setDefaultConnection(ArrayNodeDefinition $node, $key)
+    {
+        $node
+            ->validate()
+                ->always(function($value) use ($key) {
+                    foreach ($value[$key] as &$service) {
+                        if (null === $service['connection']) {
+                            $service['connection'] = $value['default_connection'];
+                        }
+                        unset($service);
+                    }
+
+                    return $value;
+                })
+            ->end()
+        ->end();
+
+        return $this;
+    }
+
+    protected function getTreeNode($name, $type = 'array')
+    {
+        return $this->getTreeBuilder()->root($name, $type);
+    }
+
+    protected function getTreeBuilder()
+    {
+        return new TreeBuilder();
     }
 }
